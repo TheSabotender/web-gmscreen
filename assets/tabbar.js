@@ -5,6 +5,7 @@ let draggingTabId = null;
 let draggingTabEl = null;
 let dragHoverTabId = null;
 let draggingIsVertical = false;
+let dragGhostEl = null;
 
 function clearDragHover(tabList) {
   if (!tabList || !dragHoverTabId) return;
@@ -67,6 +68,10 @@ function finalizeTabDrag(context) {
   draggingTabEl.classList.remove('dragging');
   if (tabList) {
     clearDragHover(tabList);
+  }
+  if (dragGhostEl) {
+    dragGhostEl.remove();
+    dragGhostEl = null;
   }
   draggingTabId = null;
   draggingTabEl = null;
@@ -276,6 +281,26 @@ export function setupTabbar(context) {
           e.dataTransfer.setData('text/plain', draggingTabId);
         } catch (_err) {
           // Ignore if setting data is not allowed.
+        }
+        if (dragGhostEl) {
+          dragGhostEl.remove();
+        }
+        dragGhostEl = tabEl.cloneNode(true);
+        dragGhostEl.classList.add('drag-ghost');
+        Object.assign(dragGhostEl.style, {
+          position: 'absolute',
+          pointerEvents: 'none',
+          top: '-9999px',
+          left: '-9999px'
+        });
+        document.body.appendChild(dragGhostEl);
+        const rect = dragGhostEl.getBoundingClientRect();
+        const offsetX = rect.width / 2;
+        const offsetY = rect.height / 2;
+        try {
+          e.dataTransfer.setDragImage(dragGhostEl, offsetX, offsetY);
+        } catch (_err) {
+          // Ignore if custom drag image is not supported.
         }
       }
     });
