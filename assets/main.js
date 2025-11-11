@@ -1,6 +1,6 @@
 // assets/main.js
 
-import { renderDesktop, setupDesktop } from './desktop.js';
+import { renderWallpaper, renderDesktop, setupDesktop } from './desktop.js';
 import { renderTabs, setupTabbar } from './tabbar.js';
 import { renderSettings, setupSettings } from './settings.js';
 import { initPremadeSubmenu } from './panel_premade.js';
@@ -83,6 +83,7 @@ function normalizeZIndexes() {
 }
 
 function renderAll(context) {
+  renderWallpaper(context);
   renderSettings(context);
   renderTabs(context);
   renderDesktop(context);
@@ -92,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const context = {
     elements: {
       appRoot: document.getElementById('app-root'),
+      wallpaper: document.getElementById('wallpaper'),
       desktop: document.getElementById('desktop'),
       tabList: document.getElementById('tab-list'),
       addTabBtn: document.getElementById('add-tab-btn'),
@@ -131,6 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
     saveState: () => saveState(),
     loadState: () => loadState(),
     renderAll: () => renderAll(context),
+    renderWallpaper: () => renderWallpaper(context),
     renderDesktop: () => renderDesktop(context),
     renderTabs: () => renderTabs(context),
     renderSettings: () => renderSettings(context)

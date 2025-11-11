@@ -6,7 +6,8 @@ export function renderSettings(context) {
   const state = context.getState();
   const {
     appRoot,
-    desktop,
+    wallpaper,
+    desktop,    
     backgroundUrlInput,
     backgroundModeRadios,
     backgroundOpacitySlider,
@@ -21,19 +22,19 @@ export function renderSettings(context) {
     appRoot.classList.add(`tabbar-${state.settings.tabBarPosition}`);
   }
 
-  if (desktop) {
+  if (wallpaper) {
     const bgColor = state.settings.backgroundColor || '#1e1f22';
-    desktop.style.setProperty('--desktop-base-bg', bgColor);
+    wallpaper.style.setProperty('--wallpaper-base-bg', bgColor);
 
     const url = state.settings.backgroundUrl || '';
     const isVideo = WEBM_PATTERN.test(url);
-    desktop.classList.toggle('has-video-background', isVideo);
+    wallpaper.classList.toggle('has-video-background', isVideo);
     if (isVideo) {
-      desktop.style.setProperty('--desktop-bg-image', 'none');
+      wallpaper.style.setProperty('--wallpaper-bg-image', 'none');
     } else if (url) {
-      desktop.style.setProperty('--desktop-bg-image', `url("${url}")`);
+      wallpaper.style.setProperty('--wallpaper-bg-image', `url("${url}")`);
     } else {
-      desktop.style.setProperty('--desktop-bg-image', 'none');
+      wallpaper.style.setProperty('--wallpaper-bg-image', 'none');
     }
 
     const mode = state.settings.backgroundMode || 'envelop';
@@ -48,8 +49,8 @@ export function renderSettings(context) {
       repeat = 'repeat';
     }
 
-    desktop.style.setProperty('--desktop-bg-size', size);
-    desktop.style.setProperty('--desktop-bg-repeat', repeat);
+    wallpaper.style.setProperty('--wallpaper-bg-size', size);
+    wallpaper.style.setProperty('--wallpaper-bg-repeat', repeat);
 
     let videoFit = 'cover';
     if (mode === 'fit') {
@@ -57,10 +58,10 @@ export function renderSettings(context) {
     } else if (mode === 'tiled') {
       videoFit = 'none';
     }
-    desktop.style.setProperty('--desktop-video-object-fit', videoFit);
+    wallpaper.style.setProperty('--wallpaper-video-object-fit', videoFit);
 
     const opacity = state.settings.backgroundOpacity ?? 1;
-    desktop.style.setProperty('--desktop-bg-opacity', String(opacity));
+    wallpaper.style.setProperty('--wallpaper-bg-opacity', String(opacity));
 
     if (backgroundOpacitySlider && backgroundOpacityValue) {
       const percent = Math.round(opacity * 100);
@@ -261,6 +262,7 @@ export function setupSettings(context) {
       state.settings.backgroundUrl = backgroundUrlInput.value.trim();
       context.saveState();
       context.renderSettings();
+      context.renderWallpaper();
       context.renderDesktop();
     });
   }

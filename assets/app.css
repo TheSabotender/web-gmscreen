@@ -14,13 +14,13 @@
   --tabbar-width: 42px;
   --transition-fast: 0.15s ease-out;
 
-  /* NEW for desktop background control */
-  --desktop-base-bg: #1e1f22;   /* beneath the image */
-  --desktop-bg-image: none;
-  --desktop-bg-size: cover;
-  --desktop-bg-repeat: no-repeat;
-  --desktop-bg-opacity: 1;
-  --desktop-video-object-fit: cover;
+  /* NEW for wallpaper background control */
+  --wallpaper-base-bg: #1e1f22;   /* beneath the image */
+  --wallpaper-bg-image: none;
+  --wallpaper-bg-size: cover;
+  --wallpaper-bg-repeat: no-repeat;
+  --wallpaper-bg-opacity: 1;
+  --wallpaper-video-object-fit: cover;
 }
 
 *,
@@ -118,54 +118,75 @@ body {
   text-orientation: mixed;
 }
 
-/* Desktop */
+/* wallpaper */
 
-.desktop {
-  position: relative;
-  flex: 1;
-  background: var(--desktop-base-bg);
-  overflow: hidden;
+.wallpaper {
+    position: relative;
+    flex: 1;
+    background: var(--wallpaper-base-bg);
+    overflow: hidden;
 }
 
 /* Background image as an overlay so we can control opacity */
-.desktop::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: var(--desktop-bg-image);
-  background-position: center;
-  background-size: var(--desktop-bg-size);
-  background-repeat: var(--desktop-bg-repeat);
-  opacity: var(--desktop-bg-opacity);
-  pointer-events: none;
-}
+    .wallpaper::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: var(--wallpaper-bg-image);
+        background-position: center;
+        background-size: var(--wallpaper-bg-size);
+        background-repeat: var(--wallpaper-bg-repeat);
+        opacity: var(--wallpaper-bg-opacity);
+        pointer-events: none;
+    }
 
-.desktop.has-video-background::before {
+.wallpaper.has-video-background::before {
   display: none;
 }
 
-.desktop-video-wrapper {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-  opacity: var(--desktop-bg-opacity);
+.wallpaper-video-wrapper {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: var(--wallpaper-bg-opacity);
 }
 
-.desktop-video-wrapper video {
-  width: 100%;
-  height: 100%;
-  object-fit: var(--desktop-video-object-fit);
-  object-position: center;
+    .wallpaper-video-wrapper video {
+        width: 100%;
+        height: 100%;
+        object-fit: var(--wallpaper-video-object-fit);
+        object-position: center;
+    }
+
+    .wallpaper-video-wrapper[data-mode="tiled"] video {
+        object-fit: none;
+        width: auto;
+        height: auto;
+        min-width: 100%;
+        min-height: 100%;
+    }
+
+/* desktop */
+
+.desktop {
+    position: absolute;
+    flex: 1;
+    overflow: hidden;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
 }
 
-.desktop-video-wrapper[data-mode="tiled"] video {
-  object-fit: none;
-  width: auto;
-  height: auto;
-  min-width: 100%;
-  min-height: 100%;
+.desktop::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    display: none;
+    pointer-events: none;
+    opacity: 0;
 }
 
 /* Panels */

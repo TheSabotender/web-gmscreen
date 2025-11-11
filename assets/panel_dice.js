@@ -1,4 +1,7 @@
 // assets/panel_dice.js
+import('../dice-so-nice/DiceSoNiceClient.js');
+import { DiceSoNiceClient } from '../dice-so-nice/DiceSoNiceClient.js';
+
 
 const DIE_TYPES = [
   { key: 'd4', label: 'd4', sides: 4 },
@@ -10,7 +13,6 @@ const DIE_TYPES = [
   { key: 'd100', label: 'd100', sides: 100 }
 ];
 
-let diceClientCtor = null;
 let diceClientInstance = null;
 let diceClientInitPromise = null;
 
@@ -46,31 +48,13 @@ function ensureOverlay() {
   return overlay.querySelector('#dice-canvas');
 }
 
-async function loadDiceClientCtor() {
-  if (diceClientCtor) return diceClientCtor;
-  try {
-    const mod = await import('../dice-so-nice/app/index.js');
-    diceClientCtor = mod?.DiceSoNiceClient || mod?.default || mod;
-  } catch (err) {
-    console.error('Failed to load Dice So Nice client.', err);
-    throw err;
-  }
-  return diceClientCtor;
-}
-
 async function getDiceClient() {
-  ensureOverlay();
-  const DiceClient = await loadDiceClientCtor();
+  const canvas = ensureOverlay();
   if (!diceClientInstance) {
-    diceClientInstance = new DiceClient({
-      selector: '#dice-canvas',
-      theme: 'default',
-      themeColor: '#ffae2e',
-      scale: 8,
-      delay: 200,
-    });
+      diceClientInstance = new DiceSoNiceClient(canvas);
     diceClientInitPromise = diceClientInstance.init();
-  }
+    }
+
   if (diceClientInitPromise) {
     try {
       await diceClientInitPromise;
