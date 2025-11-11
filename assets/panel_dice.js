@@ -64,7 +64,6 @@ async function getDiceClient() {
   if (!diceClientInstance) {
     diceClientInstance = new DiceClient({
       selector: '#dice-box-canvas',
-      assetPath: '/dice/assets/',
       theme: 'default',
       themeColor: '#ffae2e',
       scale: 8,

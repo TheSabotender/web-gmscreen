@@ -7,11 +7,7 @@ const DEFAULT_OPTIONS = {
    * through to DiceBox which will create or reuse the target canvas element.
    */
   selector: "#dice-box-canvas",
-  /**
-   * Relative asset path passed to DiceBox. The Dice So Nice assets live inside
-   * the repo so we default to that location, but callers can override it.
-   */
-  assetPath: "/dice/assets/",
+  
   /** Theme identifier configured inside the DiceBox theme loader. */
   theme: "default",
   /** Base color for dice that rely on tinting rather than baked textures. */
