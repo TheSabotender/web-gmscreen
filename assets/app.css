@@ -728,16 +728,16 @@ body {
   display: inline-block;
   font-size: 13px;
 }
-/* Dice box overlay */
+/* Dice overlay */
 
-.dice-box-overlay {
+.dice-overlay {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 2000;
 }
 
-.dice-box-canvas {
+.dice-canvas {
   width: 100%;
   height: 100%;
 }

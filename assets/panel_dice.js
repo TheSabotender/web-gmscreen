@@ -30,20 +30,20 @@ function ensureCountsObject(panel) {
 }
 
 function ensureOverlay() {
-  let overlay = document.getElementById('dice-box-overlay');
+  let overlay = document.getElementById('dice-overlay');
   if (!overlay) {
     overlay = document.createElement('div');
-    overlay.id = 'dice-box-overlay';
-    overlay.className = 'dice-box-overlay';
+    overlay.id = 'dice-overlay';
+    overlay.className = 'dice-overlay';
 
     const container = document.createElement('div');
-    container.id = 'dice-box-canvas';
-    container.className = 'dice-box-canvas';
+    container.id = 'dice-canvas';
+    container.className = 'dice-canvas';
 
     overlay.appendChild(container);
     document.body.appendChild(overlay);
   }
-  return overlay.querySelector('#dice-box-canvas');
+  return overlay.querySelector('#dice-canvas');
 }
 
 async function loadDiceClientCtor() {
@@ -63,7 +63,7 @@ async function getDiceClient() {
   const DiceClient = await loadDiceClientCtor();
   if (!diceClientInstance) {
     diceClientInstance = new DiceClient({
-      selector: '#dice-box-canvas',
+      selector: '#dice-canvas',
       theme: 'default',
       themeColor: '#ffae2e',
       scale: 8,
