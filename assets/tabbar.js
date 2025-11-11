@@ -2,6 +2,77 @@
 
 let tabContextTargetTabId = null;
 let draggingTabId = null;
+let draggingTabEl = null;
+let dragHoverTabId = null;
+let draggingIsVertical = false;
+
+function clearDragHover(tabList) {
+  if (!tabList || !dragHoverTabId) return;
+  const previous = tabList.querySelector(`.tab[data-tab-id="${dragHoverTabId}"]`);
+  if (previous) {
+    previous.classList.remove('drag-hover');
+  }
+  dragHoverTabId = null;
+}
+
+function setDragHover(tabList, tabId) {
+  if (!tabList) return;
+  if (tabId === draggingTabId) {
+    clearDragHover(tabList);
+    return;
+  }
+  if (tabId === dragHoverTabId) return;
+  clearDragHover(tabList);
+  if (!tabId) return;
+  const nextHover = tabList.querySelector(`.tab[data-tab-id="${tabId}"]`);
+  if (nextHover) {
+    nextHover.classList.add('drag-hover');
+    dragHoverTabId = tabId;
+  }
+}
+
+function syncTabOrderFromDom(context) {
+  const { tabList } = context.elements;
+  if (!tabList) return;
+  const state = context.getState();
+  const tabs = getTabs(state);
+  if (!tabs.length) return;
+
+  const domTabs = Array.from(tabList.querySelectorAll('.tab'));
+  if (domTabs.length !== tabs.length) return;
+
+  const idToTab = new Map(tabs.map(tab => [tab.id, tab]));
+  const newOrder = domTabs
+    .map(el => idToTab.get(el.dataset.tabId))
+    .filter(Boolean);
+
+  if (newOrder.length !== tabs.length) return;
+
+  let changed = false;
+  for (let i = 0; i < tabs.length; i++) {
+    if (tabs[i] !== newOrder[i]) {
+      changed = true;
+      break;
+    }
+  }
+  if (!changed) return;
+
+  tabs.length = 0;
+  newOrder.forEach(tab => tabs.push(tab));
+}
+
+function finalizeTabDrag(context) {
+  if (!draggingTabEl) return;
+  const { tabList } = context.elements;
+  draggingTabEl.classList.remove('dragging');
+  if (tabList) {
+    clearDragHover(tabList);
+  }
+  draggingTabId = null;
+  draggingTabEl = null;
+  draggingIsVertical = false;
+  context.saveState();
+}
 
 function getTabs(state) {
   return state.tabs || [];
@@ -195,27 +266,72 @@ export function setupTabbar(context) {
       const tabEl = e.target.closest('.tab');
       if (!tabEl) return;
       draggingTabId = tabEl.dataset.tabId;
-      e.dataTransfer.effectAllowed = 'move';
+      draggingTabEl = tabEl;
+      draggingTabEl.classList.add('dragging');
+      clearDragHover(tabList);
+      draggingIsVertical = window.getComputedStyle(tabList).flexDirection.startsWith('column');
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = 'move';
+        try {
+          e.dataTransfer.setData('text/plain', draggingTabId);
+        } catch (_err) {
+          // Ignore if setting data is not allowed.
+        }
+      }
     });
 
     tabList.addEventListener('dragover', e => {
+      if (!draggingTabId || !draggingTabEl) return;
       e.preventDefault();
-      const overTab = e.target.closest('.tab');
-      if (!overTab || !draggingTabId) return;
-      e.dataTransfer.dropEffect = 'move';
+      if (e.dataTransfer) {
+        e.dataTransfer.dropEffect = 'move';
+      }
+
+      const tabs = Array.from(tabList.querySelectorAll('.tab'));
+      let targetTab = null;
+      const pointer = draggingIsVertical ? e.clientY : e.clientX;
+      for (const tab of tabs) {
+        if (tab === draggingTabEl) continue;
+        const rect = tab.getBoundingClientRect();
+        const midpoint = draggingIsVertical
+          ? rect.top + rect.height / 2
+          : rect.left + rect.width / 2;
+        if (pointer < midpoint) {
+          targetTab = tab;
+          break;
+        }
+      }
+
+      if (!targetTab) {
+        setDragHover(tabList, null);
+        if (draggingTabEl.nextElementSibling) {
+          tabList.appendChild(draggingTabEl);
+          syncTabOrderFromDom(context);
+        }
+        return;
+      }
+
+      setDragHover(tabList, targetTab.dataset.tabId);
+
+      const siblings = Array.from(tabList.children);
+      const draggingIndex = siblings.indexOf(draggingTabEl);
+      const targetIndex = siblings.indexOf(targetTab);
+      if (draggingIndex === -1 || targetIndex === -1) return;
+
+      if (draggingIndex < targetIndex && targetIndex - draggingIndex === 1) {
+        return;
+      }
+
+      tabList.insertBefore(draggingTabEl, targetTab);
+      syncTabOrderFromDom(context);
     });
 
     tabList.addEventListener('drop', e => {
       e.preventDefault();
-      const targetTab = e.target.closest('.tab');
-      if (!targetTab || !draggingTabId) return;
-      const targetId = targetTab.dataset.tabId;
-      reorderTabs(context, draggingTabId, targetId);
-      draggingTabId = null;
     });
 
     tabList.addEventListener('dragend', () => {
-      draggingTabId = null;
+      finalizeTabDrag(context);
     });
   }
 
