@@ -12,6 +12,48 @@ import {
 import { ensureGridDimensions, computeGridSizeForCount } from './panel_gridLayout.js';
 import { openSettings, closeSettings } from './settings.js';
 
+const WEBM_PATTERN = /\.webm(?:$|\?)/i;
+
+function createBackgroundVideoWrapper(state) {
+  const url = state.settings.backgroundUrl || '';
+  if (!WEBM_PATTERN.test(url)) {
+    return null;
+  }
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'desktop-video-wrapper';
+  const mode = state.settings.backgroundMode || 'envelop';
+  wrapper.dataset.mode = mode;
+
+  const video = document.createElement('video');
+  video.className = 'desktop-bg-video';
+  video.src = url;
+  video.loop = true;
+  video.autoplay = true;
+  video.playsInline = true;
+  video.setAttribute('playsinline', '');
+  video.setAttribute('autoplay', '');
+  video.setAttribute('loop', '');
+  video.preload = 'auto';
+
+  const muted = state.settings.backgroundVideoMuted !== false;
+  video.muted = muted;
+  if (muted) {
+    video.setAttribute('muted', '');
+  } else {
+    video.removeAttribute('muted');
+  }
+
+  wrapper.appendChild(video);
+
+  // Attempt to start playback immediately; ignore failures due to autoplay policies.
+  setTimeout(() => {
+    video.play().catch(() => {});
+  }, 0);
+
+  return wrapper;
+}
+
 let ctx = null;
 let draggingPanel = null;
 const dragOffset = { x: 0, y: 0 };
@@ -160,6 +202,10 @@ export function renderDesktop(context) {
   if (!desktop) return;
 
   desktop.innerHTML = '';
+  const videoWrapper = createBackgroundVideoWrapper(state);
+  if (videoWrapper) {
+    desktop.appendChild(videoWrapper);
+  }
   const currentTab = getActiveTab(context);
   if (!currentTab) return;
 

@@ -13,7 +13,8 @@ const DEFAULT_STATE = {
     backgroundUrl: '',
     backgroundMode: 'envelop',
     backgroundOpacity: 1,
-    backgroundColor: '#1e1f22'
+    backgroundColor: '#1e1f22',
+    backgroundVideoMuted: true
   },
   tabs: [
     {
@@ -45,6 +46,7 @@ function loadState() {
     if (!parsed.settings.backgroundMode) parsed.settings.backgroundMode = 'envelop';
     if (typeof parsed.settings.backgroundOpacity !== 'number') parsed.settings.backgroundOpacity = 1;
     if (typeof parsed.settings.backgroundColor !== 'string') parsed.settings.backgroundColor = '#1e1f22';
+    if (typeof parsed.settings.backgroundVideoMuted !== 'boolean') parsed.settings.backgroundVideoMuted = true;
 
     if (!parsed.tabs || !parsed.tabs.length) {
       parsed.tabs = structuredClone(DEFAULT_STATE.tabs);
@@ -108,7 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
       backgroundModeRadios: document.querySelectorAll('input[name="background-mode"]'),
       backgroundOpacitySlider: document.getElementById('background-opacity-slider'),
       backgroundOpacityValue: document.getElementById('background-opacity-value'),
-      backgroundColorInput: document.getElementById('background-color-input')
+      backgroundColorInput: document.getElementById('background-color-input'),
+      backgroundVideoOptions: document.getElementById('background-video-options'),
+      backgroundVideoMutedCheckbox: document.getElementById('background-video-muted')
     },
     getState: () => state,
     setState: value => {

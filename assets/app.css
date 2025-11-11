@@ -20,6 +20,7 @@
   --desktop-bg-size: cover;
   --desktop-bg-repeat: no-repeat;
   --desktop-bg-opacity: 1;
+  --desktop-video-object-fit: cover;
 }
 
 *,
@@ -137,6 +138,34 @@ body {
   background-repeat: var(--desktop-bg-repeat);
   opacity: var(--desktop-bg-opacity);
   pointer-events: none;
+}
+
+.desktop.has-video-background::before {
+  display: none;
+}
+
+.desktop-video-wrapper {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: var(--desktop-bg-opacity);
+}
+
+.desktop-video-wrapper video {
+  width: 100%;
+  height: 100%;
+  object-fit: var(--desktop-video-object-fit);
+  object-position: center;
+}
+
+.desktop-video-wrapper[data-mode="tiled"] video {
+  object-fit: none;
+  width: auto;
+  height: auto;
+  min-width: 100%;
+  min-height: 100%;
 }
 
 /* Panels */
@@ -589,6 +618,16 @@ body {
   border: 1px solid #383a40;
   background: #111217;
   color: var(--text-color);
+}
+
+.background-video-options {
+  margin-top: 6px;
+  font-size: 13px;
+  display: none;
+}
+
+.background-video-options.visible {
+  display: block;
 }
 
 .settings-body button {
