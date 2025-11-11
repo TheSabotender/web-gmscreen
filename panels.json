@@ -1,0 +1,74 @@
+[
+  {
+    "id": "pf2e-dcs",
+    "name": "Pf2e/Difficulty Classes",
+    "file": "panels/Pf2e/difficultyClasses.html",
+    "source": "https://2e.aonprd.com/Rules.aspx?ID=2627",
+    "width": 600,
+    "height": 910
+  },
+  {
+    "id": "pf2e-earnIncome",
+    "name": "Pf2e/Earn Income",
+    "file": "panels/Pf2e/earnIncome.html",
+    "source": "https://2e.aonprd.com/Actions.aspx?ID=2364",
+    "width": 600,
+    "height": 910
+  },
+  {
+    "id": "-",
+    "name": "Pf2e"
+  },
+  {
+    "id": "pf2e-encounterBudget",
+    "name": "Pf2e/Encounter Budget",
+    "file": "panels/Pf2e/encounterBudget.html",
+    "source": "https://2e.aonprd.com/Rules.aspx?ID=2717",
+    "width": 600,
+    "height": 910
+  },  
+  {
+    "id": "pf2e-creatureNumbers",
+    "name": "Pf2e/Building Creatures",
+    "file": "panels/Pf2e/creatureNumbers.html",
+    "source": "https://2e.aonprd.com/Rules.aspx?ID=2874",
+    "width": 600,
+    "height": 910
+  },
+  {
+    "id": "pf2e-conditions",
+    "name": "Pf2e/Conditions",
+    "file": "panels/Pf2e/conditions.html",
+    "source": "https://2e.aonprd.com/Conditions.aspx",
+    "width": 680,
+    "height": 880
+  },
+  {
+    "id": "-",
+    "name": "Pf2e"
+  },
+  {
+    "id": "pf2e-xpAwards",
+    "name": "Pf2e/XP Awards",
+    "file": "panels/Pf2e/xpAwards.html",
+    "source": "https://2e.aonprd.com/Rules.aspx?ID=2649",
+    "width": 600,
+    "height": 910
+  },
+  {
+    "id": "pf2e-treasureByLevel",
+    "name": "Pf2e/Treasure by Level",
+    "file": "panels/Pf2e/treasureByLevel.html",
+    "source": "https://2e.aonprd.com/Rules.aspx?ID=2656",
+    "width": 600,
+    "height": 910
+  },
+  {
+    "id": "pf2e-treasureByEncounter",
+    "name": "Pf2e/Treasure by Encounter",
+    "file": "panels/Pf2e/treasureByEncounter.html",
+    "source": "https://2e.aonprd.com/Rules.aspx?ID=2738",
+    "width": 600,
+    "height": 910
+  }
+]
