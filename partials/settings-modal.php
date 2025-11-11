@@ -23,6 +23,13 @@
           <input type="text" id="background-url-input" placeholder="https://example.com/bg.jpg">
         </label>
 
+        <div id="background-video-options" class="background-video-options">
+          <label>
+            <input type="checkbox" id="background-video-muted" checked>
+            Mute audio
+          </label>
+        </div>
+
         <div style="margin-top: 6px;">
           <strong style="font-size: 13px;">Display:</strong>
           <label><input type="radio" name="background-mode" value="fit"> Fit</label>

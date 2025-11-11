@@ -1,5 +1,7 @@
 // assets/settings.js
 
+const WEBM_PATTERN = /\.webm(?:$|\?)/i;
+
 export function renderSettings(context) {
   const state = context.getState();
   const {
@@ -9,7 +11,9 @@ export function renderSettings(context) {
     backgroundModeRadios,
     backgroundOpacitySlider,
     backgroundOpacityValue,
-    backgroundColorInput
+    backgroundColorInput,
+    backgroundVideoOptions,
+    backgroundVideoMutedCheckbox
   } = context.elements;
 
   if (appRoot) {
@@ -22,7 +26,11 @@ export function renderSettings(context) {
     desktop.style.setProperty('--desktop-base-bg', bgColor);
 
     const url = state.settings.backgroundUrl || '';
-    if (url) {
+    const isVideo = WEBM_PATTERN.test(url);
+    desktop.classList.toggle('has-video-background', isVideo);
+    if (isVideo) {
+      desktop.style.setProperty('--desktop-bg-image', 'none');
+    } else if (url) {
       desktop.style.setProperty('--desktop-bg-image', `url("${url}")`);
     } else {
       desktop.style.setProperty('--desktop-bg-image', 'none');
@@ -43,6 +51,14 @@ export function renderSettings(context) {
     desktop.style.setProperty('--desktop-bg-size', size);
     desktop.style.setProperty('--desktop-bg-repeat', repeat);
 
+    let videoFit = 'cover';
+    if (mode === 'fit') {
+      videoFit = 'contain';
+    } else if (mode === 'tiled') {
+      videoFit = 'none';
+    }
+    desktop.style.setProperty('--desktop-video-object-fit', videoFit);
+
     const opacity = state.settings.backgroundOpacity ?? 1;
     desktop.style.setProperty('--desktop-bg-opacity', String(opacity));
 
@@ -60,6 +76,21 @@ export function renderSettings(context) {
 
   if (backgroundUrlInput) {
     backgroundUrlInput.value = state.settings.backgroundUrl || '';
+  }
+
+  const url = state.settings.backgroundUrl || '';
+  const isVideo = WEBM_PATTERN.test(url);
+
+  if (backgroundVideoOptions) {
+    if (isVideo) {
+      backgroundVideoOptions.classList.add('visible');
+    } else {
+      backgroundVideoOptions.classList.remove('visible');
+    }
+  }
+
+  if (backgroundVideoMutedCheckbox) {
+    backgroundVideoMutedCheckbox.checked = state.settings.backgroundVideoMuted !== false;
   }
 
   if (backgroundModeRadios) {
@@ -120,6 +151,7 @@ function applySettingsFromUI(context) {
 
   context.saveState();
   context.renderSettings();
+  context.renderDesktop();
 }
 
 function exportStateJSON(context) {
@@ -162,6 +194,7 @@ export function setupSettings(context) {
     backgroundOpacityValue,
     backgroundColorInput,
     backgroundUrlInput,
+    backgroundVideoMutedCheckbox,
     exportJsonBtn,
     importJsonFile
   } = context.elements;
@@ -228,6 +261,17 @@ export function setupSettings(context) {
       state.settings.backgroundUrl = backgroundUrlInput.value.trim();
       context.saveState();
       context.renderSettings();
+      context.renderDesktop();
+    });
+  }
+
+  if (backgroundVideoMutedCheckbox) {
+    backgroundVideoMutedCheckbox.addEventListener('change', () => {
+      const state = context.getState();
+      state.settings.backgroundVideoMuted = backgroundVideoMutedCheckbox.checked;
+      context.saveState();
+      context.renderSettings();
+      context.renderDesktop();
     });
   }
 
