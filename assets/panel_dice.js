@@ -262,8 +262,10 @@ export function renderDicePanel(context, panel, bodyEl) {
   ensureCountsObject(panel);
   bodyEl.classList.add('dice-panel');
 
-  renderSpinnerRow(context, panel, panel.diceCounts, bodyEl);
-  renderButtonsRow(context, panel, bodyEl);
+  if (!panel.minimized) {
+      renderSpinnerRow(context, panel, panel.diceCounts, bodyEl);
+      renderButtonsRow(context, panel, bodyEl);
+  }
 }
 
 export function isDicePanel(panel) {

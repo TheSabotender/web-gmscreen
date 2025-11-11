@@ -328,6 +328,13 @@ body {
   height: 32px !important;
   min-height: 32px;
 }
+.panel.minimizeddice {
+    height: 50px !important;
+    min-height: 50px;
+    width: 60px !important;
+    min-width: 60px;
+}
+
 .panel.minimized .panel-body,
 .panel.minimized .panel-resize-handle {
   display: none;
