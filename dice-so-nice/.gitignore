@@ -1,0 +1,9 @@
+
+.idea
+*.iml
+dist
+node_modules
+
+# Dev Tools
+*repomix*
+CODING_ASSISTANT.md

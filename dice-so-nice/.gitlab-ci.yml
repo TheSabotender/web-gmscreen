@@ -1,0 +1,72 @@
+image: node:20.13.1
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .npm/
+
+before_script:
+  - apt-get update
+  - apt-get install zip curl jq -y
+  - npm ci
+
+stages:
+  - build
+  - publish
+
+build:
+  stage: build
+  script:
+    - npx rollup -c
+    - cd dist
+    - zip dice-so-nice.zip -r . -x ".*"
+  artifacts:
+    name: dice-so-nice
+    when: on_success
+    expire_in: never
+    paths:
+      - dist/dice-so-nice.zip
+  only:
+    - tags
+
+publish:
+  stage: publish
+  script:
+    - |
+      PACKAGE_ID=$(jq -r '.id' module/module.json)
+      VERSION=$(jq -r '.version' module/module.json)
+      MANIFEST_URL="https://gitlab.com/riccisi/foundryvtt-dice-so-nice/-/raw/${CI_COMMIT_TAG}/module/module.json"
+      NOTES_URL="https://gitlab.com/riccisi/foundryvtt-dice-so-nice/-/tags/${CI_COMMIT_TAG}"
+      MIN_CORE_VERSION=$(jq -r '.compatibility.minimum' module/module.json)
+      VERIFIED_CORE_VERSION=$(jq -r '.compatibility.verified' module/module.json)
+      
+      # Decode the base64 token
+      FOUNDRY_RELEASE_TOKEN=$(echo $FOUNDRY_RELEASE_TOKEN_B64 | base64 -d)
+      
+      RESPONSE=$(curl -s -H "Authorization: ${FOUNDRY_RELEASE_TOKEN}" \
+        -H "Content-Type: application/json" \
+        -X POST https://foundryvtt.com/_api/packages/release_version/ \
+        -d '{
+          "id": "'"${PACKAGE_ID}"'",
+          "release": {
+            "version": "'"${VERSION}"'",
+            "manifest": "'"${MANIFEST_URL}"'",
+            "notes": "'"${NOTES_URL}"'",
+            "compatibility": {
+              "minimum": "'"${MIN_CORE_VERSION}"'",
+              "verified": "'"${VERIFIED_CORE_VERSION}"'"
+            }
+          }
+        }')
+      
+      # Print response without the token
+      echo "API Response:" $(echo $RESPONSE)
+      
+      if echo $RESPONSE | jq -e '.status == "success"' > /dev/null; then
+        echo "Release published successfully"
+      else
+        echo "Failed to publish release"
+        exit 1
+      fi
+  only:
+    - tags

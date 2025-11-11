@@ -49,7 +49,7 @@ function ensureOverlay() {
 async function loadDiceBoxCtor() {
   if (diceBoxCtor) return diceBoxCtor;
   try {
-    const mod = await import('https://cdn.jsdelivr.net/npm/dice-box@1/dist/dice-box.es.min.js');
+      const mod = await import('@3d-dice/dice-box');
     diceBoxCtor = mod?.default || mod?.DiceBox || mod;
   } catch (err) {
     console.error('Failed to load dice-box library.', err);
@@ -63,7 +63,7 @@ async function getDiceBox() {
   const DiceBox = await loadDiceBoxCtor();
   if (!diceBoxInstance) {
     diceBoxInstance = new DiceBox('#dice-box-canvas', {
-      assetPath: 'https://cdn.jsdelivr.net/npm/dice-box@1/dist/',
+      assetPath: '/dice/assets/',
       scale: 8,
       gravity: 9.8,
       delay: 200,
