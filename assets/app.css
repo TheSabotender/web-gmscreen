@@ -380,11 +380,39 @@ body {
   cursor: pointer;
   flex-shrink: 0;
   user-select: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
 }
 
 .tab.active {
   background: var(--accent-soft);
   color: var(--text-color);
+}
+
+.tab.dragging {
+  opacity: 0.75;
+  transform: scale(0.97);
+}
+
+.tab.drag-ghost {
+  transform: rotate(10deg);
+}
+
+.tab.drag-hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+}
+
+#app-root.tabbar-left .tab.drag-hover,
+#app-root.tabbar-right .tab.drag-hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+}
+
+#app-root.tabbar-left .tab.drag-hover {
+  transform: translateX(2px);
+}
+
+#app-root.tabbar-right .tab.drag-hover {
+  transform: translateX(-2px);
 }
 
 .tab-label {
