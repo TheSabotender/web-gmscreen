@@ -4,6 +4,7 @@ import { renderDesktop, setupDesktop } from './desktop.js';
 import { renderTabs, setupTabbar } from './tabbar.js';
 import { renderSettings, setupSettings } from './settings.js';
 import { initPremadeSubmenu } from './panel_premade.js';
+import { createDicePanelState, ensureDicePanels } from './panel_dice.js';
 
 const STORAGE_KEY = 'webDesktopStateV1';
 
@@ -20,7 +21,7 @@ const DEFAULT_STATE = {
     {
       id: 'tab-1',
       title: 'Tab 1',
-      panels: []
+      panels: [createDicePanelState('panel-dice')]
     }
   ],
   activeTabId: 'tab-1'
@@ -117,6 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
     getState: () => state,
     setState: value => {
       state = value;
+      ensureDicePanels(state, { createId: () => uid('panel') });
+      normalizeZIndexes();
     },
     getDefaultState: () => structuredClone(DEFAULT_STATE),
     uid,
@@ -134,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   state = loadState();
+  ensureDicePanels(state, { createId: () => uid('panel') });
   normalizeZIndexes();
 
   initPremadeSubmenu(context);
