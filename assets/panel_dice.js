@@ -10,9 +10,9 @@ const DIE_TYPES = [
   { key: 'd100', label: 'd100', sides: 100 }
 ];
 
-let diceBoxCtor = null;
-let diceBoxInstance = null;
-let diceBoxInitPromise = null;
+let diceClientCtor = null;
+let diceClientInstance = null;
+let diceClientInitPromise = null;
 
 function ensureCountsObject(panel) {
   if (!panel.diceCounts || typeof panel.diceCounts !== 'object') {
@@ -46,48 +46,49 @@ function ensureOverlay() {
   return overlay.querySelector('#dice-box-canvas');
 }
 
-async function loadDiceBoxCtor() {
-  if (diceBoxCtor) return diceBoxCtor;
+async function loadDiceClientCtor() {
+  if (diceClientCtor) return diceClientCtor;
   try {
-      const mod = await import('@3d-dice/dice-box');
-    diceBoxCtor = mod?.default || mod?.DiceBox || mod;
+    const mod = await import('../dice-so-nice/app/index.js');
+    diceClientCtor = mod?.DiceSoNiceClient || mod?.default || mod;
   } catch (err) {
-    console.error('Failed to load dice-box library.', err);
+    console.error('Failed to load Dice So Nice client.', err);
     throw err;
   }
-  return diceBoxCtor;
+  return diceClientCtor;
 }
 
-async function getDiceBox() {
+async function getDiceClient() {
   ensureOverlay();
-  const DiceBox = await loadDiceBoxCtor();
-  if (!diceBoxInstance) {
-    diceBoxInstance = new DiceBox('#dice-box-canvas', {
+  const DiceClient = await loadDiceClientCtor();
+  if (!diceClientInstance) {
+    diceClientInstance = new DiceClient({
+      selector: '#dice-box-canvas',
       assetPath: '/dice/assets/',
+      theme: 'default',
+      themeColor: '#ffae2e',
       scale: 8,
-      gravity: 9.8,
       delay: 200,
-      themeColor: '#ffae2e'
     });
-    diceBoxInitPromise = diceBoxInstance.init();
+    diceClientInitPromise = diceClientInstance.init();
   }
-  if (diceBoxInitPromise) {
+  if (diceClientInitPromise) {
     try {
-      await diceBoxInitPromise;
+      await diceClientInitPromise;
     } catch (err) {
-      console.error('Failed to initialise dice-box.', err);
+      console.error('Failed to initialise Dice So Nice.', err);
       throw err;
     }
   }
-  return diceBoxInstance;
+  return diceClientInstance;
 }
 
-function clearDiceBoxInstance(diceBox) {
-  if (!diceBox) return;
-  if (typeof diceBox.clear === 'function') {
-    diceBox.clear();
-  } else if (typeof diceBox.removeDice === 'function') {
-    diceBox.removeDice();
+function clearDiceClient(instance) {
+  if (!instance) return;
+  if (typeof instance.clear === 'function') {
+    instance.clear();
+  } else if (typeof instance.removeDice === 'function') {
+    instance.removeDice();
   }
 }
 
@@ -226,10 +227,10 @@ function renderButtonsRow(context, panel, bodyEl) {
     }
     setButtonsEnabled(false);
     try {
-      const diceBox = await getDiceBox();
-      clearDiceBoxInstance(diceBox);
-      if (diceBox && typeof diceBox.roll === 'function') {
-        await diceBox.roll(notation);
+      const diceClient = await getDiceClient();
+      clearDiceClient(diceClient);
+      if (diceClient && typeof diceClient.roll === 'function') {
+        await diceClient.roll(notation);
       }
     } catch (err) {
       console.error('Failed to roll dice:', err);
@@ -243,8 +244,8 @@ function renderButtonsRow(context, panel, bodyEl) {
   clearBtn.addEventListener('click', async () => {
     setButtonsEnabled(false);
     try {
-      const diceBox = await getDiceBox();
-      clearDiceBoxInstance(diceBox);
+      const diceClient = await getDiceClient();
+      clearDiceClient(diceClient);
     } catch (err) {
       console.error('Failed to clear dice:', err);
     } finally {
