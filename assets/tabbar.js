@@ -1,5 +1,7 @@
 // assets/tabbar.js
 
+import { createDicePanelState } from './panel_dice.js';
+
 let tabContextTargetTabId = null;
 let draggingTabId = null;
 let draggingTabEl = null;
@@ -91,6 +93,9 @@ function addTab(context) {
     title: 'New Tab',
     panels: []
   };
+  const dicePanel = createDicePanelState(context.uid('panel'));
+  dicePanel.zIndex = context.bumpZCounter();
+  tab.panels.push(dicePanel);
   getTabs(state).push(tab);
   state.activeTabId = id;
   context.saveState();

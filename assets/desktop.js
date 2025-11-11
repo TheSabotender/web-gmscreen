@@ -11,6 +11,7 @@ import {
 } from './panel_layout.js';
 import { ensureGridDimensions, computeGridSizeForCount } from './panel_gridLayout.js';
 import { openSettings, closeSettings } from './settings.js';
+import { renderDicePanel } from './panel_dice.js';
 
 const WEBM_PATTERN = /\.webm(?:$|\?)/i;
 
@@ -160,6 +161,10 @@ function closePanel(panelId, context = ctx) {
   const found = findPanelById(panelId, context);
   if (!found) return;
   const { tab, panel } = found;
+
+  if (panel && panel.closable === false) {
+    return;
+  }
 
   if (panel.type === 'custom') {
     const ok = confirm('Close this custom panel? Its custom content will be lost.');
@@ -329,15 +334,17 @@ export function renderDesktop(context) {
     });
     headerButtons.appendChild(minimizeBtn);
 
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'panel-btn';
-    closeBtn.textContent = '×';
-    closeBtn.title = 'Close panel';
-    closeBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      closePanel(panel.id);
-    });
-    headerButtons.appendChild(closeBtn);
+    if (panel.closable !== false) {
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'panel-btn';
+      closeBtn.textContent = '×';
+      closeBtn.title = 'Close panel';
+      closeBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        closePanel(panel.id);
+      });
+      headerButtons.appendChild(closeBtn);
+    }
 
     header.appendChild(title);
     header.appendChild(headerButtons);
@@ -351,6 +358,8 @@ export function renderDesktop(context) {
       renderCustomPanel(panel, body);
     } else if (panel.type === 'external') {
       renderExternalPanel(panel, body);
+    } else if (panel.type === 'dice') {
+      renderDicePanel(context, panel, body);
     } else if (panel.type === 'layout') {
       renderLayoutPanel(context, panel, body, {
         enterCustomChildEdit: (childId, parentId, element) =>
