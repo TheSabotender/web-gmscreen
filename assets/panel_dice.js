@@ -1,6 +1,12 @@
 // assets/panel_dice.js
-import('../dice-so-nice/DiceSoNiceClient.js');
-import DiceSoNiceClient from '../dice-so-nice/DiceSoNiceClient.js';
+
+const pageLoadPromise = new Promise(resolve => {
+  if (document.readyState === 'complete') {
+    resolve();
+  } else {
+    window.addEventListener('load', () => resolve(), { once: true });
+  }
+});
 
 const DIE_TYPES = [
   { key: 'd4', label: 'd4', sides: 4 },
@@ -12,8 +18,26 @@ const DIE_TYPES = [
   { key: 'd100', label: 'd100', sides: 100 }
 ];
 
+let diceClientModulePromise = null;
+let DiceSoNiceClientClass = null;
 let diceClientInstance = null;
 let diceClientInitPromise = null;
+
+function loadDiceClientModule() {
+  if (!diceClientModulePromise) {
+    diceClientModulePromise = pageLoadPromise
+      .then(() => import('../dice-so-nice/DiceSoNiceClient.js'))
+      .then(module => {
+        DiceSoNiceClientClass = module.default || module;
+        return DiceSoNiceClientClass;
+      })
+      .catch(err => {
+        diceClientModulePromise = null;
+        throw err;
+      });
+  }
+  return diceClientModulePromise;
+}
 
 function ensureCountsObject(panel) {
   if (!panel.diceCounts || typeof panel.diceCounts !== 'object') {
@@ -48,9 +72,10 @@ function ensureOverlay() {
 }
 
 async function getDiceClient() {
+  const DiceClientCtor = await loadDiceClientModule();
   const canvas = ensureOverlay();
   if (!diceClientInstance) {
-    diceClientInstance = new DiceSoNiceClient(canvas);
+    diceClientInstance = new DiceClientCtor(canvas);
     diceClientInitPromise = diceClientInstance.init();
   }
 
@@ -261,17 +286,57 @@ function renderButtonsRow(context, panel, bodyEl) {
   return { rollBtn, clearBtn };
 }
 
-export function renderDicePanel(context, panel, bodyEl) {
-    if (!bodyEl) return;
+function renderLoadingBar(bodyEl) {
+  const container = document.createElement('div');
+  container.className = 'dice-panel-loading';
 
+  const bar = document.createElement('div');
+  bar.className = 'dice-panel-loading-bar';
+
+  container.appendChild(bar);
+  bodyEl.appendChild(container);
+  return container;
+}
+
+function renderDiceControls(context, panel, bodyEl) {
+  bodyEl.innerHTML = '';
   ensureOverlay();
   ensureCountsObject(panel);
+  renderSpinnerRow(context, panel, panel.diceCounts, bodyEl);
+  renderButtonsRow(context, panel, bodyEl);
+}
+
+export function renderDicePanel(context, panel, bodyEl) {
+  if (!bodyEl) return;
+
   bodyEl.classList.add('dice-panel');
 
-  if (!panel.minimized) {
-      renderSpinnerRow(context, panel, panel.diceCounts, bodyEl);
-      renderButtonsRow(context, panel, bodyEl);
+  if (panel.minimized) {
+    return;
   }
+
+  if (DiceSoNiceClientClass) {
+    renderDiceControls(context, panel, bodyEl);
+    return;
+  }
+
+  bodyEl.innerHTML = '';
+  const loadingEl = renderLoadingBar(bodyEl);
+
+  loadDiceClientModule()
+    .then(() => {
+      if (!bodyEl.isConnected) {
+        return;
+      }
+      renderDiceControls(context, panel, bodyEl);
+    })
+    .catch(err => {
+      console.error('Failed to load Dice So Nice client.', err);
+      if (!bodyEl.isConnected) {
+        return;
+      }
+      loadingEl.textContent = 'Failed to load dice client.';
+    });
 }
 
 export function isDicePanel(panel) {
