@@ -284,6 +284,46 @@ body {
   gap: 12px;
 }
 
+.dice-panel-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 12px;
+}
+
+.dice-panel-loading-bar {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.dice-panel-loading-bar::after {
+  content: '';
+  position: absolute;
+  left: -40%;
+  width: 40%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  animation: dice-panel-loading-indeterminate 1.2s ease-in-out infinite;
+}
+
+@keyframes dice-panel-loading-indeterminate {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(180%);
+  }
+  100% {
+    transform: translateX(360%);
+  }
+}
+
 .dice-panel-controls {
   display: flex;
   flex-wrap: wrap;
