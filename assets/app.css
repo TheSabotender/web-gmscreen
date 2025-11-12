@@ -291,30 +291,55 @@ body {
 }
 
 .dice-spinner {
-  display: flex;
   align-items: center;
   gap: 6px;
   padding: 6px 8px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 6px;
   vertical-align: middle;
-  line-height:50px;
+  line-height:15px;
 }
 
 .dice-spinner-label {
-  font-weight: 600;
-  font-size: 13px;
-  color: var(--text-color);
+    align-items: center;
+    text-align: center;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-color);
+}
+
+.dice-spinner-button {
+    align-items: center;
+    text-align: center;
+    width: 46px;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-color);
+    background: rgba(255,255,255,0.03);
+    border: none;
 }
 
 .dice-spinner-input {
-  width: 56px;
-  padding: 4px 6px;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: #1a1b20;
-  color: var(--text-color);
+    align-items: center;
+    text-align: center;
+    width: 46px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #1a1b20;
+    color: var(--text-color);
 }
+
+    .dice-spinner-input::-webkit-outer-spin-button,
+    .dice-spinner-input::-webkit-inner-spin-button {
+        /* display: none; <- Crashes Chrome on hover */
+        -webkit-appearance: none;
+        margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+    }
+
+    .dice-spinner-input[type=number] {
+        -moz-appearance: textfield; /* Firefox */
+    }
 
 .dice-panel-actions {
   display: flex;

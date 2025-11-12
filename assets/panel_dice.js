@@ -84,7 +84,7 @@ export function createDicePanelState(id) {
     title: 'Dice Roller',
     x: 32,
     y: 32,
-    width: 550,
+    width: 500,
     height: 200,
     zIndex: 1,
     minimized: true,
@@ -118,7 +118,7 @@ export function ensureDicePanels(state, options = {}) {
         dicePanel.minimized = true;
       }
       if (typeof dicePanel.width !== 'number') {
-        dicePanel.width = 550;
+        dicePanel.width = 500;
       }
       if (typeof dicePanel.height !== 'number') {
         dicePanel.height = 200;
@@ -142,31 +142,61 @@ function renderSpinnerRow(context, panel, counts, bodyEl) {
   controls.className = 'dice-panel-controls';
 
   DIE_TYPES.forEach(die => {
-    const field = document.createElement('label');
+    const field = document.createElement('div');
     field.className = 'dice-spinner';
 
-    const span = document.createElement('span');
-    span.className = 'dice-spinner-label';
-    span.textContent = die.label.toUpperCase();
+    const br1 = document.createElement('br');
+    const br2 = document.createElement('br');
+    const br3 = document.createElement('br');
+
+    const label = document.createElement('div');
+    label.className = 'dice-spinner-label';
+    label.textContent = die.label.toUpperCase();
+
+      const addDice = document.createElement('button');
+      addDice.className = 'dice-spinner-button';
+      addDice.textContent = '+';
+      addDice.addEventListener('click', () => {
+          let value = parseInt(input.value, 10)+1;
+          if (!Number.isFinite(value) || value < 0) value = 0;
+          input.value = value;
+          panel.diceCounts[die.key] = value;
+          context.saveState();
+      });
 
     const input = document.createElement('input');
     input.type = 'number';
     input.min = '0';
     input.step = '1';
     input.value = counts[die.key] ?? 0;
-    input.className = 'dice-spinner-input';
+      input.className = 'dice-spinner-input';
 
-    input.addEventListener('input', () => {
-      let value = parseInt(input.value, 10);
-      if (!Number.isFinite(value) || value < 0) value = 0;
-      input.value = value;
-      panel.diceCounts[die.key] = value;
-      context.saveState();
-    });
+      input.addEventListener('input', () => {
+          let value = parseInt(input.value, 10);
+          if (!Number.isFinite(value) || value < 0) value = 0;
+          input.value = value;
+          panel.diceCounts[die.key] = value;
+          context.saveState();
+      });
 
-    
-    field.appendChild(input);
-    field.appendChild(span);
+      const remDice = document.createElement('button');
+      remDice.className = 'dice-spinner-button';
+      remDice.textContent = '-';
+      remDice.addEventListener('click', () => {
+          let value = parseInt(input.value, 10)-1;
+          if (!Number.isFinite(value) || value < 0) value = 0;
+          input.value = value;
+          panel.diceCounts[die.key] = value;
+          context.saveState();
+      });
+
+      field.appendChild(label);
+      field.appendChild(br1);
+      field.appendChild(addDice);    
+      field.appendChild(br2);
+      field.appendChild(input);   
+      field.appendChild(br3);
+      field.appendChild(remDice);
     controls.appendChild(field);
   });
 
