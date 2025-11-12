@@ -1,4 +1,4 @@
-import { ShaderUtils } from './ShaderUtils';
+import { ShaderUtils } from './ShaderUtils.js';
 import { AssetsLoader } from './AssetsLoader.js';
 export class DicePreset {
 

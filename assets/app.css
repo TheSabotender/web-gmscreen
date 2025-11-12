@@ -296,6 +296,8 @@ body {
   padding: 6px 8px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 6px;
+  vertical-align: middle;
+  line-height:50px;
 }
 
 .dice-spinner-label {

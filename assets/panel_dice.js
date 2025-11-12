@@ -1,7 +1,6 @@
 // assets/panel_dice.js
 import('../dice-so-nice/DiceSoNiceClient.js');
-import { DiceSoNiceClient } from '../dice-so-nice/DiceSoNiceClient.js';
-
+import DiceSoNiceClient from '../dice-so-nice/DiceSoNiceClient.js';
 
 const DIE_TYPES = [
   { key: 'd4', label: 'd4', sides: 4 },
@@ -51,9 +50,9 @@ function ensureOverlay() {
 async function getDiceClient() {
   const canvas = ensureOverlay();
   if (!diceClientInstance) {
-      diceClientInstance = new DiceSoNiceClient(canvas);
+    diceClientInstance = new DiceSoNiceClient(canvas);
     diceClientInitPromise = diceClientInstance.init();
-    }
+  }
 
   if (diceClientInitPromise) {
     try {
@@ -63,16 +62,8 @@ async function getDiceClient() {
       throw err;
     }
   }
-  return diceClientInstance;
-}
 
-function clearDiceClient(instance) {
-  if (!instance) return;
-  if (typeof instance.clear === 'function') {
-    instance.clear();
-  } else if (typeof instance.removeDice === 'function') {
-    instance.removeDice();
-  }
+  return diceClientInstance;
 }
 
 function buildNotation(counts) {
@@ -93,10 +84,10 @@ export function createDicePanelState(id) {
     title: 'Dice Roller',
     x: 32,
     y: 32,
-    width: 360,
-    height: 240,
+    width: 550,
+    height: 200,
     zIndex: 1,
-    minimized: false,
+    minimized: true,
     closable: false,
     diceCounts: DIE_TYPES.reduce((acc, die) => {
       acc[die.key] = 0;
@@ -107,11 +98,13 @@ export function createDicePanelState(id) {
 
 export function ensureDicePanels(state, options = {}) {
   const createId = options.createId || (() => `panel-${Math.random().toString(36).slice(2, 9)}`);
-  if (!state || !Array.isArray(state.tabs)) return;
+    if (!state || !Array.isArray(state.tabs)) return;
+
   state.tabs.forEach(tab => {
     if (!Array.isArray(tab.panels)) {
       tab.panels = [];
     }
+
     let dicePanel = tab.panels.find(panel => panel.type === 'dice');
     if (!dicePanel) {
       const id = createId();
@@ -122,13 +115,13 @@ export function ensureDicePanels(state, options = {}) {
       dicePanel.title = dicePanel.title || 'Dice Roller';
       dicePanel.closable = false;
       if (typeof dicePanel.minimized !== 'boolean') {
-        dicePanel.minimized = false;
+        dicePanel.minimized = true;
       }
       if (typeof dicePanel.width !== 'number') {
-        dicePanel.width = 360;
+        dicePanel.width = 550;
       }
       if (typeof dicePanel.height !== 'number') {
-        dicePanel.height = 240;
+        dicePanel.height = 200;
       }
       if (typeof dicePanel.x !== 'number') {
         dicePanel.x = 32;
@@ -171,8 +164,9 @@ function renderSpinnerRow(context, panel, counts, bodyEl) {
       context.saveState();
     });
 
-    field.appendChild(span);
+    
     field.appendChild(input);
+    field.appendChild(span);
     controls.appendChild(field);
   });
 
@@ -202,33 +196,31 @@ function renderButtonsRow(context, panel, bodyEl) {
     clearBtn.disabled = !enabled;
   };
 
-  const performRoll = async () => {
-    const counts = panel.diceCounts || {};
-    const notation = buildNotation(counts);
-    if (!notation) {
-      return;
-    }
-    setButtonsEnabled(false);
-    try {
-      const diceClient = await getDiceClient();
-      clearDiceClient(diceClient);
-      if (diceClient && typeof diceClient.roll === 'function') {
-        await diceClient.roll(notation);
+  rollBtn.addEventListener('click', async () => {
+      const counts = panel.diceCounts || {};
+      const notation = buildNotation(counts);
+      if (!notation) {
+          return;
       }
-    } catch (err) {
-      console.error('Failed to roll dice:', err);
-    } finally {
-      setButtonsEnabled(true);
-    }
-  };
-
-  rollBtn.addEventListener('click', performRoll);
+      setButtonsEnabled(false);
+      try {
+          const diceClient = await getDiceClient();
+          diceClient.clear();
+          if (diceClient && typeof diceClient.roll === 'function') {
+              await diceClient.roll(notation);
+          }
+      } catch (err) {
+          console.error('Failed to roll dice:', err);
+      } finally {
+          setButtonsEnabled(true);
+      }
+  });
 
   clearBtn.addEventListener('click', async () => {
     setButtonsEnabled(false);
     try {
       const diceClient = await getDiceClient();
-      clearDiceClient(diceClient);
+      diceClient.clear();
     } catch (err) {
       console.error('Failed to clear dice:', err);
     } finally {
@@ -240,7 +232,8 @@ function renderButtonsRow(context, panel, bodyEl) {
 }
 
 export function renderDicePanel(context, panel, bodyEl) {
-  if (!bodyEl) return;
+    if (!bodyEl) return;
+
   ensureOverlay();
   ensureCountsObject(panel);
   bodyEl.classList.add('dice-panel');

@@ -1,6 +1,6 @@
 import { Clock, Mesh, MeshStandardMaterial, PlaneGeometry } from 'three';
 import { DiceSFX } from '../DiceSFX.js';
-import { DiceSFXManager } from './../DiceSFXManager';
+import { DiceSFXManager } from './../DiceSFXManager.js';
 
 export class PlayAnimationImpact extends DiceSFX {
     static id = "PlayAnimationImpact";

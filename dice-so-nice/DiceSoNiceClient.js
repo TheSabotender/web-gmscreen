@@ -1,6 +1,4 @@
 import { Dice3D } from './module/Dice3D.js';
-import { DiceConfig } from './module/DiceConfig.js';
-import { RollableAreaConfig } from './module/RollableAreaConfig.js';
 import { Utils } from './module/Utils.js';
 
 /**

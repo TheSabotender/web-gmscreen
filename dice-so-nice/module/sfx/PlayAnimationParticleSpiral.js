@@ -1,7 +1,7 @@
 import { AddEquation, CustomBlending, OneFactor, Sprite, SpriteMaterial, SrcAlphaFactor } from 'three';
 import { DiceSFX } from '../DiceSFX.js';
 import { Proton } from '../libs/three.proton.js';
-import { DiceSFXManager } from './../DiceSFXManager';
+import { DiceSFXManager } from './../DiceSFXManager.js';
 
 export class PlayAnimationParticleSpiral extends DiceSFX {
     static id = "PlayAnimationParticleSpiral";

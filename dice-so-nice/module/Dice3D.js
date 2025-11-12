@@ -7,7 +7,6 @@ import { Accumulator } from './Accumulator.js';
 import { Utils } from './Utils.js';
 import { ThinFilmFresnelMap } from './libs/ThinFilmFresnelMap.js';
 import { TextureLoader } from 'three';
-import { DiceTourMain } from './tours/DiceTourMain.js';
 import { DiceSFX } from './DiceSFX.js';
 import { DiceSystem } from './DiceSystem.js';
 /**
@@ -308,7 +307,7 @@ export class Dice3D {
             bloomRadius: { value: 0.2 },
             bloomThreshold: { value: 0 },
             iridescenceLookUp: { value: new ThinFilmFresnelMap() },
-            iridescenceNoise: { value: new TextureLoader().load("modules/dice-so-nice/textures/noise-thin-film.webp") },
+            iridescenceNoise: { value: new TextureLoader().load("textures/noise-thin-film.webp") },
             boost: { value: 1.5 },
             time: { value: 0 }
         };
@@ -332,7 +331,6 @@ export class Dice3D {
         this._startQueueHandler();
         this._nextAnimationHandler();
         this._welcomeMessage();
-        this._registerTours();
     }
 
     get canInteract() {
@@ -478,11 +476,6 @@ export class Dice3D {
             return app.render(true);
         });
 
-        $(document).on("click", ".dice-so-nice-btn-tour", (ev) => {
-            ev.preventDefault();
-            game.tours.get("dice-so-nice.dice-so-nice-tour").start();
-        });
-
         game.socket.on('module.dice-so-nice', (request) => {
             switch (request.type) {
                 case "show":
@@ -564,12 +557,6 @@ export class Dice3D {
                     </button>
                 </p>
                 <p class="nue">${game.i18n.localize("DICESONICE.WelcomeMessage3")}</p>
-                <p class="nue">${game.i18n.localize("DICESONICE.WelcomeMessageTour")}</p>
-                <p>
-                    <button type="button" class="dice-so-nice-btn-tour" data-tour="dice-so-nice-tour">
-                        <i class="fas fa-hiking"></i> ${game.i18n.localize("DICESONICE.WelcomeMessageTourBtn")}
-                    </button>
-                </p>
                 <p class="nue">${game.i18n.localize("DICESONICE.WelcomeMessage4")}</p>
                 <footer class="nue">${game.i18n.localize("NUE.FirstLaunchHint")}</footer>
             </div>
@@ -585,13 +572,6 @@ export class Dice3D {
             ChatMessage.implementation.createDocuments(chatData);
             game.user.setFlag("dice-so-nice", "welcomeMessageShown", true);
         }
-    }
-
-    /**
-     * Register the tours to the Tour Manager
-     */
-    _registerTours() {
-        game.tours.register("dice-so-nice", "dice-so-nice-tour", new DiceTourMain());
     }
 
     /**

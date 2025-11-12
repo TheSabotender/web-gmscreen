@@ -1,7 +1,7 @@
 import { Mesh, MeshBasicMaterial, NormalBlending, PlaneGeometry } from 'three';
 import { DiceSFX } from '../DiceSFX.js';
 import { Proton } from '../libs/three.proton.js';
-import { DiceSFXManager } from './../DiceSFXManager';
+import { DiceSFXManager } from './../DiceSFXManager.js';
 
 export class PlayAnimationParticleVortex extends DiceSFX {
     static id = "PlayAnimationParticleVortex";

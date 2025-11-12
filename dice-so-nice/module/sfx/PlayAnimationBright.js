@@ -1,6 +1,6 @@
 import { Clock, Color } from 'three';
 import { DiceSFX } from '../DiceSFX.js';
-import { ShaderUtils } from './../ShaderUtils';
+import { ShaderUtils } from './../ShaderUtils.js';
 
 export class PlayAnimationBright extends DiceSFX {
     static id = "PlayAnimationBright";

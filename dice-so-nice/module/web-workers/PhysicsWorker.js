@@ -1,9 +1,9 @@
 import { World, Material, NaiveBroadphase, ContactMaterial, Body, Plane, Vec3, Sphere, PointToPointConstraint, Cylinder, ConvexPolyhedron } from 'cannon-es';
 import { DICE_SHAPE } from '../DiceModels.js';
 import { Vector3 } from 'three';
-import RegisterPromise from 'webworker-promise/lib/register';
+import RegisterPromise from 'webworker-promise/register.js';
 
-class PhysicsWorker {
+export default class PhysicsWorker {
     constructor() {
         this.shapeList = new Map();
         this.host = RegisterPromise()

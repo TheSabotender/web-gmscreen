@@ -394,8 +394,8 @@ export function renderDesktop(context) {
       renderCustomPanel(panel, body);
     } else if (panel.type === 'external') {
       renderExternalPanel(panel, body);
-    } else if (panel.type === 'dice') {
-      renderDicePanel(context, panel, body);
+    } else if (panel.type === 'dice') {     
+        renderDicePanel(context, panel, body);        
     } else if (panel.type === 'layout') {
       renderLayoutPanel(context, panel, body, {
         enterCustomChildEdit: (childId, parentId, element) =>

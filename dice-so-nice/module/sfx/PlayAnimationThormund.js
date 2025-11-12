@@ -1,7 +1,7 @@
 import { Box3, CatmullRomCurve3, Clock, Vector3 } from 'three';
 import { DiceSFX } from '../DiceSFX.js';
-import { DiceSFXManager } from './../DiceSFXManager';
-import { ShaderUtils } from './../ShaderUtils';
+import { DiceSFXManager } from './../DiceSFXManager.js';
+import { ShaderUtils } from './../ShaderUtils.js';
 
 
 export class PlayAnimationThormund extends DiceSFX {
