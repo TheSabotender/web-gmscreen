@@ -58,6 +58,7 @@ function createBackgroundVideoWrapper(state) {
 let ctx = null;
 let draggingPanel = null;
 const dragOffset = { x: 0, y: 0 };
+const PANEL_HEADER_MIN_VISIBLE = 40;
 let resizingPanel = null;
 let resizeStart = { x: 0, y: 0, width: 0, height: 0 };
 let desktopContextTargetPoint = { x: 0, y: 0 };
@@ -439,10 +440,22 @@ function onPanelDrag(e) {
     if (!draggingPanel) return;
     const panelEl = document.querySelector(`.panel[data-panel-id="${draggingPanel.id}"]`);
     if (!panelEl) return;
+    const headerEl = panelEl.querySelector('.panel-header');
+    const headerHeight = headerEl ? headerEl.offsetHeight : 28;
+    const desktopRect = ctx.elements.desktop.getBoundingClientRect();
+    const panelWidth = panelEl.offsetWidth;
+    const horizontalVisible = Math.min(PANEL_HEADER_MIN_VISIBLE, panelWidth);
+    const verticalVisible = Math.min(PANEL_HEADER_MIN_VISIBLE, headerHeight);
     const newLeft = e.clientX - dragOffset.x;
     const newTop = e.clientY - dragOffset.y;
-    panelEl.style.left = newLeft + 'px';
-    panelEl.style.top = newTop + 'px';
+    const minLeft = desktopRect.left + horizontalVisible - panelWidth;
+    const maxLeft = desktopRect.right - horizontalVisible;
+    const minTop = desktopRect.top + verticalVisible - headerHeight;
+    const maxTop = desktopRect.bottom - verticalVisible;
+    const clampedLeft = Math.min(Math.max(newLeft, minLeft), maxLeft);
+    const clampedTop = Math.min(Math.max(newTop, minTop), maxTop);
+    panelEl.style.left = clampedLeft - desktopRect.left + 'px';
+    panelEl.style.top = clampedTop - desktopRect.top + 'px';
 }
 
 function endPanelDrag() {
