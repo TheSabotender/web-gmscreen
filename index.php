@@ -7,10 +7,6 @@ require_once __DIR__ . '/partials/config.php';
   <?php include __DIR__ . '/partials/header.php'; ?>
 </head>
 <body>
-  <?php include __DIR__ . '/partials/desktop.php'; ?>
-  <?php include __DIR__ . '/partials/settings-modal.php'; ?>
-
-  <!-- "https://unpkg.com/three@0.160.0/build/three.module.js" -->
   <script type="importmap">
     {
       "imports": {        
@@ -23,6 +19,10 @@ require_once __DIR__ . '/partials/config.php';
       }
     }
   </script>
+  <?php include __DIR__ . '/partials/desktop.php'; ?>
+  <?php include __DIR__ . '/partials/settings-modal.php'; ?>
+
+  <!-- "https://unpkg.com/three@0.160.0/build/three.module.js" -->
 
   <script>
     // Expose premade panels to JS

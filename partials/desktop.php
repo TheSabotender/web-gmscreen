@@ -2,9 +2,10 @@
 // partials/desktop.php
 ?>
 <div id="app-root" class="tabbar-bottom">
-<div id="wallpaper" class="wallpaper">
+  <div id="wallpaper" class="wallpaper">
     <!-- Wallpaper will be injected here by JS -->
-</div>
+  </div>
+
   <div id="desktop" class="desktop" tabindex="0">
     <!-- Panels will be injected here by JS -->
   </div>
