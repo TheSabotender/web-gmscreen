@@ -1,5 +1,6 @@
 // assets/main.js
 
+import './foundry-utils.js';
 import { renderWallpaper, renderDesktop, setupDesktop } from './desktop.js';
 import { renderTabs, setupTabbar } from './tabbar.js';
 import { renderSettings, setupSettings } from './settings.js';
