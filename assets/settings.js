@@ -1,14 +1,56 @@
 // assets/settings.js
 
 const WEBM_PATTERN = /\.webm(?:$|\?)/i;
+const BACKGROUND_PRESETS_URL = 'assets/backgrounds.json';
+
+let backgroundPresetsPromise = null;
+
+function normalizePresetData(data) {
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  if (data && Array.isArray(data.backgrounds)) {
+    return data.backgrounds;
+  }
+
+  return [];
+}
+
+async function loadBackgroundPresets() {
+  if (!backgroundPresetsPromise) {
+    backgroundPresetsPromise = (async () => {
+      try {
+        const response = await fetch(BACKGROUND_PRESETS_URL, { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        const raw = await response.json();
+        const items = normalizePresetData(raw)
+          .filter(item => item && typeof item.label === 'string' && typeof item.url === 'string')
+          .map(item => ({ label: item.label, url: item.url }));
+
+        return items;
+      } catch (err) {
+        console.error('Failed to load background presets:', err);
+        return [];
+      }
+    })();
+  }
+
+  return backgroundPresetsPromise;
+}
 
 export function renderSettings(context) {
   const state = context.getState();
   const {
     appRoot,
     wallpaper,
-    desktop,    
+    desktop,
     backgroundUrlInput,
+    backgroundUrlPresetsBtn,
+    backgroundUrlPresets,
     backgroundModeRadios,
     backgroundOpacitySlider,
     backgroundOpacityValue,
@@ -77,6 +119,14 @@ export function renderSettings(context) {
 
   if (backgroundUrlInput) {
     backgroundUrlInput.value = state.settings.backgroundUrl || '';
+  }
+
+  if (backgroundUrlPresets) {
+    backgroundUrlPresets.classList.remove('open');
+  }
+
+  if (backgroundUrlPresetsBtn) {
+    backgroundUrlPresetsBtn.setAttribute('aria-expanded', 'false');
   }
 
   const url = state.settings.backgroundUrl || '';
@@ -195,10 +245,18 @@ export function setupSettings(context) {
     backgroundOpacityValue,
     backgroundColorInput,
     backgroundUrlInput,
+    backgroundUrlPresetsBtn,
+    backgroundUrlPresets,
     backgroundVideoMutedCheckbox,
     exportJsonBtn,
     importJsonFile
   } = context.elements;
+
+  const closeBackgroundPresetsDropdown = () => {
+    if (!backgroundUrlPresets || !backgroundUrlPresetsBtn) return;
+    backgroundUrlPresets.classList.remove('open');
+    backgroundUrlPresetsBtn.setAttribute('aria-expanded', 'false');
+  };
 
   if (settingsClose) {
     settingsClose.addEventListener('click', () => {
@@ -267,6 +325,77 @@ export function setupSettings(context) {
     });
   }
 
+  if (backgroundUrlPresetsBtn && backgroundUrlPresets && backgroundUrlInput && !backgroundUrlPresets.dataset.dropdownInit) {
+    backgroundUrlPresets.dataset.dropdownInit = 'true';
+
+    const renderPresetList = presets => {
+      backgroundUrlPresets.innerHTML = '';
+      if (!presets.length) {
+        const empty = document.createElement('li');
+        empty.className = 'background-url-presets-empty';
+        empty.textContent = 'No preset backgrounds found.';
+        backgroundUrlPresets.appendChild(empty);
+        return;
+      }
+
+      const fragment = document.createDocumentFragment();
+      presets.forEach(preset => {
+        const li = document.createElement('li');
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'background-url-presets-item';
+        button.dataset.url = preset.url;
+        button.textContent = preset.label;
+        button.setAttribute('role', 'menuitem');
+        li.appendChild(button);
+        fragment.appendChild(li);
+      });
+
+      backgroundUrlPresets.appendChild(fragment);
+    };
+
+    const openDropdown = async () => {
+      if (!backgroundUrlPresetsBtn || !backgroundUrlPresets) return;
+      const presets = await loadBackgroundPresets();
+      renderPresetList(presets);
+      backgroundUrlPresets.classList.add('open');
+      backgroundUrlPresetsBtn.setAttribute('aria-expanded', 'true');
+    };
+
+    const handleDocumentClick = event => {
+      if (!backgroundUrlPresets.contains(event.target) && !backgroundUrlPresetsBtn.contains(event.target)) {
+        closeBackgroundPresetsDropdown();
+      }
+    };
+
+    backgroundUrlPresetsBtn.addEventListener('click', async event => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (backgroundUrlPresets.classList.contains('open')) {
+        closeBackgroundPresetsDropdown();
+      } else {
+        await openDropdown();
+      }
+    });
+
+    backgroundUrlPresets.addEventListener('click', event => {
+      event.stopPropagation();
+      const button = event.target.closest('button[data-url]');
+      if (!button) {
+        return;
+      }
+
+      event.preventDefault();
+      closeBackgroundPresetsDropdown();
+      backgroundUrlInput.value = button.dataset.url || '';
+      backgroundUrlInput.dispatchEvent(new Event('input', { bubbles: true }));
+      backgroundUrlInput.focus();
+    });
+
+    document.addEventListener('click', handleDocumentClick);
+    window.addEventListener('blur', closeBackgroundPresetsDropdown);
+  }
+
   if (backgroundVideoMutedCheckbox) {
     backgroundVideoMutedCheckbox.addEventListener('change', () => {
       const state = context.getState();
@@ -294,6 +423,7 @@ export function setupSettings(context) {
 
   window.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
+      closeBackgroundPresetsDropdown();
       closeSettings(context);
     }
   });
