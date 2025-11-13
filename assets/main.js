@@ -5,6 +5,7 @@ import { renderTabs, setupTabbar } from './tabbar.js';
 import { renderSettings, setupSettings } from './settings.js';
 import { initPremadeSubmenu } from './panel_premade.js';
 import { createDicePanelState, ensureDicePanels } from './panel_dice.js';
+import { Messages } from './messages.js';
 
 const STORAGE_KEY = 'webDesktopStateV1';
 
@@ -136,7 +137,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderWallpaper: () => renderWallpaper(context),
     renderDesktop: () => renderDesktop(context),
     renderTabs: () => renderTabs(context),
-    renderSettings: () => renderSettings(context)
+    renderSettings: () => renderSettings(context),
+    messages: Messages
   };
 
   state = loadState();
