@@ -18,9 +18,20 @@
 
       <section>
         <h3>Desktop Background</h3>
-        <label>
+        <label class="background-url-label">
           Image URL:
-          <input type="text" id="background-url-input" placeholder="https://example.com/bg.jpg">
+          <div class="background-url-picker">
+            <input type="text" id="background-url-input" placeholder="https://example.com/bg.jpg">
+            <button
+              type="button"
+              id="background-url-presets-btn"
+              class="background-url-presets-btn"
+              aria-haspopup="true"
+              aria-expanded="false"
+              title="Choose a preset background"
+            >&#9733;</button>
+            <ul id="background-url-presets" class="background-url-presets" role="menu"></ul>
+          </div>
         </label>
 
         <div id="background-video-options" class="background-video-options">

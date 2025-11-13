@@ -111,6 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
       exportJsonBtn: document.getElementById('export-json-btn'),
       importJsonFile: document.getElementById('import-json-file'),
       backgroundUrlInput: document.getElementById('background-url-input'),
+      backgroundUrlPresetsBtn: document.getElementById('background-url-presets-btn'),
+      backgroundUrlPresets: document.getElementById('background-url-presets'),
       backgroundModeRadios: document.querySelectorAll('input[name="background-mode"]'),
       backgroundOpacitySlider: document.getElementById('background-opacity-slider'),
       backgroundOpacityValue: document.getElementById('background-opacity-value'),
