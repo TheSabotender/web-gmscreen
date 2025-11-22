@@ -59,6 +59,11 @@ function send(name, context) {
 }
 
 export const Messages = Object.freeze({
+  // Use lowercase keys to match call sites like Messages.send()
+  listen,
+  unlisten,
+  send,
+  // Maintain backwards compatibility for any older uppercase references.
   Listen: listen,
   Unlisten: unlisten,
   Send: send
