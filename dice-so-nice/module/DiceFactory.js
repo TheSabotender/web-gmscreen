@@ -326,10 +326,11 @@ export class DiceFactory {
 		}
 	}
 
-	async preloadPresets(waitForLoad = true, userID = null, config = {}){
+	async preloadPresets(waitForLoad = true, config = {}){
 		let activePresets = [];
-		const preloadPresetsByUser = (user) => {
-			let appearance = user.getFlag("dice-so-nice", "appearance") ? foundry.utils.duplicate(user.getFlag("dice-so-nice", "appearance")) : null;
+		const preloadPresets = () => {
+			const appearanceSave = localStorage.getItem("dice-appearance");
+			let appearance = appearanceSave ? foundry.utils.duplicate(appearanceSave) : null;
 			if(!appearance){
 				appearance = {global:{}};
 				if(this.preferredSystem != "standard")
@@ -356,12 +357,9 @@ export class DiceFactory {
 				}
 			}
 		};
-		if(userID)
-			preloadPresetsByUser(game.users.get(userID));
-		else
-        	game.users.forEach((user) =>{
-				preloadPresetsByUser(user);
-			});
+
+		preloadPresets();
+
         //remove duplicate
         activePresets = activePresets.filter((v, i, a) => a.indexOf(v) === i);
 		let promiseArray = [];

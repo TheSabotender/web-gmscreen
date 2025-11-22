@@ -285,7 +285,7 @@ export class Utils {
     }
 
     static actionSaveAs(name) {
-        let savesObject = game.user.getFlag("dice-so-nice", "saves");
+        let savesObject = localStorage.getItem("dice-saves");
         let saves;
         if (!savesObject) {
             saves = new Map();
@@ -302,23 +302,24 @@ export class Utils {
         };
 
         saves.set(name, saveObject);
-        game.user.unsetFlag("dice-so-nice", "saves").then(() => {
-            game.user.setFlag("dice-so-nice", "saves", Object.fromEntries(saves));
+        localStorage.removeItem("dice-saves").then(async () => {
+            await localStorage.setItem("dice-saves", Object.fromEntries(saves));
         });
     }
 
     static async actionDeleteSave(name) {
-        let savesObject = game.user.getFlag("dice-so-nice", "saves");
+        let savesObject = localStorage.getItem("dice-saves");
         let saves = new Map(Object.entries(savesObject));
         saves.delete(name);
-        game.user.unsetFlag("dice-so-nice", "saves").then(async () => {
-            await game.user.setFlag("dice-so-nice", "saves", Object.fromEntries(saves));
+
+        localStorage.removeItem("dice-saves").then(async () => {
+            await localStorage.setItem("dice-saves", Object.fromEntries(saves));
             ui.notifications.info(game.i18n.localize("DICESONICE.saveMessage"));
         });
     }
 
     static async actionLoadSave(name) {
-        let savesObject = game.user.getFlag("dice-so-nice", "saves");
+        let savesObject = localStorage.getItem("dice-saves");
         let save = new Map(Object.entries(savesObject)).get(name);
 
         if (save.appearance) {

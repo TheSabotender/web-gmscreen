@@ -16,7 +16,10 @@ export class Dice3D {
 
     static get DEFAULT_OPTIONS() {
         const quality = {};
-        switch (game.settings.get("core", "performanceMode")) {
+
+        const performanceMode = localStorage.getItem("dice-performanceMode");
+
+        switch (performanceMode) {
             case 0:
                 quality.bumpMapping = false;
                 quality.shadowQuality = "low";
@@ -45,7 +48,7 @@ export class Dice3D {
         }
         return {
             enabled: true,
-            showExtraDice: game.dice3d && game.dice3d.hasOwnProperty("defaultShowExtraDice") ? game.dice3d.defaultShowExtraDice : false,
+            showExtraDice: false,
             onlyShowOwnDice: false,
             hideAfterRoll: true,
             timeBeforeHide: 2000,
@@ -72,13 +75,18 @@ export class Dice3D {
         };
     }
 
-    static DEFAULT_APPEARANCE(user = game.user) {
-        return {
+    static DEFAULT_APPEARANCE() {
+        const diceColor = localStorage.getItem("dice-diceColor");
+        if (!diceColor || !DiceColors.hasColor(diceColor.toString())) {
+            diceColor = "none";
+        }
+
+        return {            
             global: {
-                labelColor: Utils.contrastOf(user.color.toString()),
-                diceColor: user.color.toString(),
-                outlineColor: user.color.toString(),
-                edgeColor: user.color.toString(),
+                labelColor: Utils.contrastOf(diceColor.toString()),
+                diceColor: diceColor.toString(),
+                outlineColor: diceColor.toString(),
+                edgeColor: diceColor.toString(),
                 texture: "none",
                 material: "auto",
                 font: "auto",
@@ -88,44 +96,44 @@ export class Dice3D {
         };
     }
 
-    static ALL_DEFAULT_OPTIONS(user = game.user) {
-        let options = foundry.utils.mergeObject(Dice3D.DEFAULT_OPTIONS, { appearance: Dice3D.DEFAULT_APPEARANCE(user) }, { performDeletions: true });
-        options.appearance.global.system = game.dice3d.DiceFactory.preferredSystem;
-        options.appearance.global.colorset = game.dice3d.DiceFactory.preferredColorset;
+    static ALL_DEFAULT_OPTIONS() {
+        let options = foundry.utils.mergeObject(Dice3D.DEFAULT_OPTIONS, { appearance: Dice3D.DEFAULT_APPEARANCE() }, { performDeletions: true });
+        options.appearance.global.system = DiceFactory.preferredSystem;
+        options.appearance.global.colorset = DiceFactory.preferredColorset;
         return options;
     }
 
-    static CONFIG(user = game.user) {
-        let userSettings = user.getFlag("dice-so-nice", "settings") ? foundry.utils.duplicate(user.getFlag("dice-so-nice", "settings")) : null;
+    static CONFIG() {
+        const settings = localStorage.getItem("dice-settings");
+
+        let userSettings = settings ? foundry.utils.duplicate(settings) : null;
         let config = foundry.utils.mergeObject(Dice3D.DEFAULT_OPTIONS, userSettings, { performDeletions: true });
         foundry.utils.mergeObject(config, { "-=appearance": null, "-=sfxLine": null }, { performDeletions: true });
         return config;
     }
 
-    static APPEARANCE(user = game.user) {
-        let userAppearance = user.getFlag("dice-so-nice", "appearance") ? foundry.utils.duplicate(user.getFlag("dice-so-nice", "appearance")) : null;
-        let appearance = foundry.utils.mergeObject(Dice3D.DEFAULT_APPEARANCE(user), userAppearance, { performDeletions: true });
+    static APPEARANCE() {
+        const appearanceSetting = localStorage.getItem("dice-appearance");
+
+        let userAppearance = appearanceSetting ? foundry.utils.duplicate(appearanceSetting) : null;
+        let appearance = foundry.utils.mergeObject(Dice3D.DEFAULT_APPEARANCE(), userAppearance, { performDeletions: true });
         return foundry.utils.mergeObject(appearance, { "-=dimensions": null }, { performDeletions: true });
     }
 
-    static SFX(user = game.user) {
-        let sfxArray;
-        if (Dice3D.CONFIG().showOthersSFX || user.id == game.user.id)
-            sfxArray = user.getFlag("dice-so-nice", "sfxList") ? foundry.utils.duplicate(user.getFlag("dice-so-nice", "sfxList")) : [];
-        else
-            sfxArray = [];
+    static SFX() {
+        const sfxList = localStorage.getItem("dice-sfxList");
+        let sfxArray = sfxList ? foundry.utils.duplicate(sfxList) : [];
+
         if (!Array.isArray(sfxArray)) {
             sfxArray = [];
         }
         return sfxArray;
     }
 
-    static SYSTEM_SETTINGS(user = game.user) {
-        let systemSettingsList;
-        if (user.id == game.user.id)
-            systemSettingsList = user.getFlag("dice-so-nice", "systemSettingsList") ? foundry.utils.duplicate(user.getFlag("dice-so-nice", "systemSettingsList")) : [];
-        else
-            systemSettingsList = [];
+    static SYSTEM_SETTINGS() {
+        const systemSettingsListSetting = localStorage.getItem("dice-systemSettingsList");
+        let systemSettingsList = systemSettingsListSetting ? foundry.utils.duplicate(systemSettingsListSetting) : [];
+
         if (!Array.isArray(systemSettingsList)) {
             systemSettingsList = [];
         }
@@ -135,19 +143,12 @@ export class Dice3D {
     /**
      * Get the full customizations settings for the _showAnimation method 
      */
-    static ALL_CUSTOMIZATION(user = game.user, dicefactory = null) {
-        let specialEffects = Dice3D.SFX(user) || [];
-        game.users.forEach((other) => {
-            if (other.isGM && other.id != user.id) {
-                let GMSFX = Dice3D.SFX(other);
-                if (Array.isArray(GMSFX)) {
-                    GMSFX = GMSFX.filter(sfx => sfx.options && sfx.options.isGlobal);
-                    specialEffects = specialEffects.concat(GMSFX);
-                }
-            }
-        });
-        let config = foundry.utils.mergeObject({ appearance: Dice3D.APPEARANCE(user) }, { specialEffects: specialEffects }, { performDeletions: true });
-        if (dicefactory && !game.user.getFlag("dice-so-nice", "appearance")) {
+    static ALL_CUSTOMIZATION(dicefactory = null) {
+        let specialEffects = Dice3D.SFX() || [];
+        
+        let config = foundry.utils.mergeObject({ appearance: Dice3D.APPEARANCE() }, { specialEffects: specialEffects }, { performDeletions: true });
+        const appearance = localStorage.getItem("dice-appearance");
+        if (dicefactory && !appearance) {
             if (dicefactory.preferredSystem != "standard")
                 config.appearance.global.system = dicefactory.preferredSystem;
             if (dicefactory.preferredColorset != "custom")
@@ -156,9 +157,9 @@ export class Dice3D {
         return config;
     }
 
-    static ALL_CONFIG(user = game.user) {
-        let ret = foundry.utils.mergeObject(Dice3D.CONFIG(user), { appearance: Dice3D.APPEARANCE(user) }, { performDeletions: true });
-        ret.specialEffects = Dice3D.SFX(user);
+    static ALL_CONFIG() {
+        let ret = foundry.utils.mergeObject(Dice3D.CONFIG(), { appearance: Dice3D.APPEARANCE() }, { performDeletions: true });
+        ret.specialEffects = Dice3D.SFX();
         return ret;
     }
 
@@ -270,7 +271,9 @@ export class Dice3D {
      * @returns {Promise}
      */
     async loadSaveFile(name) {
-        if (game.user.getFlag("dice-so-nice", "saves").hasOwnProperty(name))
+        const saves = localStorage.getItem("dice-saves");
+
+        if (saves.hasOwnProperty(name))
             await Utils.actionLoadSave(name);
     }
 
@@ -469,25 +472,14 @@ export class Dice3D {
             this.DiceFactory.systems = systemBackup;
         };
 
-        $(document).on("click", ".dice-so-nice-btn-settings", (ev) => {
-            ev.preventDefault();
-            const menu = game.settings.menus.get(ev.currentTarget.dataset.key);
-            const app = new menu.type();
-            return app.render(true);
-        });
-
-        game.socket.on('module.dice-so-nice', (request) => {
+        Messages.listen('module.dice-so-nice', (request) => {
             switch (request.type) {
                 case "show":
-                    if (!request.users || request.users.includes(game.user.id))
-                        this.show(request.data, game.users.get(request.user));
+                    this.show(request.data);
                     break;
                 case "update":
-                    if (request.user == game.user.id || Dice3D.CONFIG().showOthersSFX)
-                        DiceSFXManager.init();
-                    if (request.user != game.user.id) {
-                        this.DiceFactory.preloadPresets(false, request.user);
-                    }
+                    DiceSFXManager.init();
+                    this.DiceFactory.preloadPresets(false);
                     break;
             }
         });
@@ -509,7 +501,8 @@ export class Dice3D {
             return { x: x, y: y };
         }
 
-        if (game.settings.get("dice-so-nice", "allowInteractivity")) {
+        const allowInteractivity = localStorage.getItem("dice-allowInteractivity");
+        if (allowInteractivity) {
             $(document).on("mousemove.dicesonice", "body", async (event) => {
                 if (!this.canInteract)
                     return;
@@ -545,20 +538,21 @@ export class Dice3D {
      * Show a private message to new players
      */
     _welcomeMessage() {
-        if (!game.user.getFlag("dice-so-nice", "welcomeMessageShown")) {
+        const welcomeMessageShown = localStorage.getItem("dice-welcomeMessageShown");
+        if (!welcomeMessageShown) {
             const content = [`
             <div class="dice-so-nice">
-                <h3 class="nue">${game.i18n.localize("DICESONICE.WelcomeTitle")}</h3>
-                <p class="nue">${game.i18n.localize("DICESONICE.WelcomeMessage1")}</p>
-                <p class="nue">${game.i18n.localize("DICESONICE.WelcomeMessage2")}</p>
+                <h3 class="nue">DICESONICE.WelcomeTitle</h3>
+                <p class="nue">DICESONICE.WelcomeMessage1</p>
+                <p class="nue">DICESONICE.WelcomeMessage2</p>
                 <p>
                     <button type="button" class="dice-so-nice-btn-settings" data-key="dice-so-nice.dice-so-nice">
-                        <i class="fas fa-dice-d20"></i> ${game.i18n.localize("DICESONICE.configTitle")}
+                        <i class="fas fa-dice-d20"></i> DICESONICE.configTitle}
                     </button>
                 </p>
-                <p class="nue">${game.i18n.localize("DICESONICE.WelcomeMessage3")}</p>
-                <p class="nue">${game.i18n.localize("DICESONICE.WelcomeMessage4")}</p>
-                <footer class="nue">${game.i18n.localize("NUE.FirstLaunchHint")}</footer>
+                <p class="nue">DICESONICE.WelcomeMessage3</p>
+                <p class="nue">DICESONICE.WelcomeMessage4</p>
+                <footer class="nue">NUE.FirstLaunchHint</footer>
             </div>
             `];
             const chatData = content.map(c => {
@@ -570,16 +564,16 @@ export class Dice3D {
                 };
             });
             ChatMessage.implementation.createDocuments(chatData);
-            game.user.setFlag("dice-so-nice", "welcomeMessageShown", true);
+
+            localStorage.setItem("dice-welcomeMessageShown", true);
         }
     }
 
     /**
      * Check if 3D simulation is enabled from the settings.
      */
-    isEnabled() {
-        let combatEnabled = (!game.combat || !game.combat.started) || (game.combat && game.combat.started && !game.settings.get("dice-so-nice", "disabledDuringCombat"));
-        return Dice3D.CONFIG().enabled && combatEnabled;
+    isEnabled() {        
+        return Dice3D.CONFIG().enabled;
     }
 
     /**
@@ -635,102 +629,73 @@ export class Dice3D {
             }
 
             Messages.send("diceSoNiceRollComplete", chatMessage.id);
-
-            if (window.ui.chat.isAtBottom || chatMessage.user.id === game.user.id)
-                window.ui.chat.scrollBottom({ popout: false });
-            if (window.ui.sidebar.popouts.chat && (window.ui.sidebar.popouts.chat.isAtBottom || chatMessage.user.id === game.user.id))
-                window.ui.sidebar.popouts.chat.scrollBottom();
         }
 
-        if (game.view == "stream" && !(game.modules.get("0streamutils")?.active || game.modules.get("obs-utils")?.active)) {
-            setTimeout(showMessage, 2500, chatMessage);
-        } else {
-            //1- We create a list of all 3D rolls, ordered ASC
-            //2- We create a Roll object with the correct formula and results
-            //3- We queue the showForRoll calls and then show the message
-            let orderedDiceList = [[]];
-            rolls.forEach(roll => {
-                roll.dice.forEach(diceTerm => {
-                    let index = 0;
-                    if (!game.settings.get("dice-so-nice", "enabledSimultaneousRollForMessage") && diceTerm.options.hasOwnProperty("rollOrder")) {
-                        index = diceTerm.options.rollOrder;
-                        if (orderedDiceList[index] == null) {
-                            orderedDiceList[index] = [];
-                        }
-                    }
-
-                    //In order to allow for custom appearance and the roll level, we merge the roll appearance in the dice term
-                    if (roll.options?.appearance) {
-                        if (!diceTerm.options)
-                            diceTerm.options = {};
-                        if (!diceTerm.options.appearance)
-                            diceTerm.options.appearance = {};
-                        diceTerm.options.appearance = foundry.utils.mergeObject(diceTerm.options.appearance, roll.options.appearance);
-                    }
-
-                    orderedDiceList[index].push(diceTerm);
-                });
-            });
-            orderedDiceList = orderedDiceList.filter(el => el != null);
-
-            let rollList = [];
-            const plus = "+";
-            //_evaluated is false in v12, true in v13+
-            if (!plus._evaluated)
-                plus.evaluate();
-
-            orderedDiceList.forEach(dice => {
-                //add a "plus" between each term
-                if (Array.isArray(dice) && dice.length) {
-                    let termList = [...dice].map((e, i) => i < dice.length - 1 ? [e, plus] : [e]).reduce((a, b) => a.concat(b));
-                    //We use the Roll class registered in the CONFIG constant in case the system overwrites it (eg: HeXXen)
-                    rollList.push(CONFIG.Dice.rolls[0].fromTerms(termList));
-                }
-            });
-
-            //call each promise one after the other, then call the showMessage function
-            const recursShowForRoll = (rollList, index) => {
-                let author = chatMessage.author;
-                if (chatMessage.getFlag("core", "initiativeRoll") && game.settings.get("dice-so-nice", "forceCharacterOwnerAppearanceForInitiative")) {
-                    if (chatMessage.speaker) {
-                        const actor = game.actors.get(chatMessage.speaker.actor);
-                        if (actor && actor.hasPlayerOwner) {
-                            //get the user from game.users
-                            author = game.users.find(user => !user.isGM && user.character?.id == actor.id);
-                            if (!author) {
-                                //if we could not find a player user, we try to find a player owner, if and only if the actor only has a single player owner (but can have multiple GMs)
-                                const ownership = { ...actor.ownership }; //ie {"default": 0,"Q1Qcc8RRRcvG6QjE": 3}
-                                if (ownership.default != CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER) { //Check that the default isn't Owner
-                                    //now get all the owners that are not GMs nor the default
-                                    delete ownership.default;
-                                    const playerOwners = Object.keys(ownership).filter(key => game.users.get(key) && !game.users.get(key).isGM);
-                                    //if there is only one player owner
-                                    if (playerOwners.length == 1) {
-                                        author = game.users.get(playerOwners[0]);
-                                    }
-                                }
-                            }
-                        }
+        //1- We create a list of all 3D rolls, ordered ASC
+        //2- We create a Roll object with the correct formula and results
+        //3- We queue the showForRoll calls and then show the message
+        let orderedDiceList = [[]];
+        rolls.forEach(roll => {
+            roll.dice.forEach(diceTerm => {
+                let index = 0;
+                const enabledSimultaneousRollForMessage = localStorage.getItem("dice-enabledSimultaneousRollForMessage");
+                if (!enabledSimultaneousRollForMessage && diceTerm.options.hasOwnProperty("rollOrder")) {
+                    index = diceTerm.options.rollOrder;
+                    if (orderedDiceList[index] == null) {
+                        orderedDiceList[index] = [];
                     }
                 }
-                this.showForRoll(rollList[index], author, false, null, false, chatMessage.id, chatMessage.speaker).then(() => {
-                    index++;
-                    if (rollList[index] != null)
-                        recursShowForRoll(rollList, index);
-                    else
-                        showMessage();
-                });
-            };
 
-            recursShowForRoll(rollList, 0);
-        }
+                //In order to allow for custom appearance and the roll level, we merge the roll appearance in the dice term
+                if (roll.options?.appearance) {
+                    if (!diceTerm.options)
+                        diceTerm.options = {};
+                    if (!diceTerm.options.appearance)
+                        diceTerm.options.appearance = {};
+                    diceTerm.options.appearance = foundry.utils.mergeObject(diceTerm.options.appearance, roll.options.appearance);
+                }
+
+                orderedDiceList[index].push(diceTerm);
+            });
+        });
+        orderedDiceList = orderedDiceList.filter(el => el != null);
+
+        let rollList = [];
+        const plus = "+";
+        //_evaluated is false in v12, true in v13+
+        if (!plus._evaluated)
+            plus.evaluate();
+
+        orderedDiceList.forEach(dice => {
+            //add a "plus" between each term
+            if (Array.isArray(dice) && dice.length) {
+                let termList = [...dice].map((e, i) => i < dice.length - 1 ? [e, plus] : [e]).reduce((a, b) => a.concat(b));
+                //We use the Roll class registered in the CONFIG constant in case the system overwrites it (eg: HeXXen)
+                rollList.push(CONFIG.Dice.rolls[0].fromTerms(termList));
+            }
+        });
+
+        //call each promise one after the other, then call the showMessage function
+        const recursShowForRoll = (rollList, index) => {
+            let author = chatMessage.author;
+
+            this.showForRoll(rollList[index], author, false, null, false, chatMessage.id, chatMessage.speaker).then(() => {
+                index++;
+                if (rollList[index] != null)
+                    recursShowForRoll(rollList, index);
+                else
+                    showMessage();
+            });
+        };
+
+        recursShowForRoll(rollList, 0);
     }
 
     /**
      * Show the 3D Dice animation for the Roll made by the User.
      *
      * @param roll an instance of Roll class to show 3D dice animation.
-     * @param user the user who made the roll (game.user by default).
+     * @param user the user who made the roll.
      * @param synchronize if the animation needs to be sent and played for each players (true/false).
      * @param users list of users or userId who can see the roll, leave it empty if everyone can see.
      * @param blind if the roll is blind for the current user
@@ -739,7 +704,7 @@ export class Dice3D {
      * @param options Object with 2 booleans: ghost (default: false) and secret (default: false)
      * @returns {Promise<boolean>} when resolved true if the animation was displayed, false if not.
      */
-    showForRoll(roll, user = game.user, synchronize, users = null, blind, messageID = null, speaker = null, options = { ghost: false, secret: false }) {
+    showForRoll(roll, user, synchronize, users = null, blind, messageID = null, speaker = null, options = { ghost: false, secret: false }) {
         let context = {
             roll: roll,
             user: user,
@@ -772,27 +737,6 @@ export class Dice3D {
         };
         applyAppearance(context.roll);
 
-        if (speaker) {
-            let actor = game.actors.get(speaker.actor);
-            const isNpc = actor ? !actor.hasPlayerOwner : false;
-            if (isNpc && game.settings.get("dice-so-nice", "hideNpcRolls")) {
-                return Promise.resolve(false);
-            }
-        }
-
-        if (Dice3D.CONFIG().onlyShowOwnDice && user !== game.user) {
-            return Promise.resolve(false);
-        }
-
-        let chatMessage = game.messages.get(messageID);
-        if (chatMessage) {
-            const hide3dDiceOnSecretRolls = game.settings.get("dice-so-nice", "hide3dDiceOnSecretRolls");
-            if (chatMessage.whisper.length > 0 && hide3dDiceOnSecretRolls)
-                context.roll.secret = true;
-            if (!chatMessage.isContentVisible && hide3dDiceOnSecretRolls)
-                context.roll.ghost = true;
-        }
-
         context.messageID = messageID;
         Messages.send("diceSoNiceRollStart", context);
         
@@ -805,13 +749,13 @@ export class Dice3D {
      * Show the 3D Dice animation based on data configuration made by the User.
      *
      * @param data data containing the dice info.
-     * @param user the user who made the roll (game.user by default).
+     * @param user the user who made the roll.
      * @param synchronize
      * @param users list of users or userId who can see the roll, leave it empty if everyone can see.
      * @param blind if the roll is blind for the current user
      * @returns {Promise<boolean>} when resolved true if the animation was displayed, false if not.
      */
-    show(data, user = game.user, synchronize = false, users = null, blind) {
+    show(data, synchronize = false, users = null, blind) {
         return new Promise((resolve, reject) => {
 
             if (!data.throws) throw new Error("Roll data should be not null");
@@ -841,7 +785,8 @@ export class Dice3D {
                     resolve(false);
                 }
             }
-            if (game.settings.get("dice-so-nice", "immediatelyDisplayChatMessages")) {
+            const immediatelyDisplayChatMessages = localStorage.getItem("dice-immediatelyDisplayChatMessages");
+            if (immediatelyDisplayChatMessages) {
                 resolve();
             }
         });
@@ -879,7 +824,8 @@ export class Dice3D {
         }
 
         return new Promise((resolve, reject) => {
-            if (game.dice3d && Dice3D.CONFIG().enabled && !game.settings.get("dice-so-nice", "immediatelyDisplayChatMessages")) {
+            const immediatelyDisplayChatMessages = localStorage.getItem("dice-immediatelyDisplayChatMessages");
+            if (Dice3D.CONFIG().enabled && !immediatelyDisplayChatMessages) {
                 buildHook(resolve);
             } else {
                 resolve(true);
@@ -948,7 +894,8 @@ export class Dice3D {
      * @returns {Promise<void>} A promise that resolves when the animation handler is initialized
      */
     async _nextAnimationHandler() {
-        const timing = game.settings.get("dice-so-nice", "enabledSimultaneousRolls") ? 400 : 0;
+        const enabledSimultaneousRolls = localStorage.getItem("dice-enabledSimultaneousRolls");
+        const timing = enabledSimultaneousRolls ? 400 : 0;
 
         this.nextAnimation = new Accumulator(timing, async (items) => {
             // If dice are disabled or queue is too long, resolve all items as false
