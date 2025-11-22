@@ -64,6 +64,7 @@ export const Messages = Object.freeze({
   Send: send
 });
 
-if (typeof window !== 'undefined') {
-  window.Messages = Messages;
+const globalScope = typeof globalThis !== 'undefined' ? globalThis : window;
+if (globalScope) {
+    globalScope.Messages = Messages;
 }

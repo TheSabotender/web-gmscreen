@@ -28,6 +28,6 @@ require_once __DIR__ . '/partials/config.php';
     // Expose premade panels to JS
     window.PREMADE_PANELS = <?php echo json_encode($panels, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
   </script>
-  <script type="module" src="assets/main.js"></script>
+  <script type="module" src="scripts/main.js"></script>
 </body>
 </html>

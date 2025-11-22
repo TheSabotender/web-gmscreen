@@ -1,0 +1,42 @@
+[
+  {
+    "label": "Starfield",
+    "url": "https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?auto=format&fit=crop&w=1920&q=80"
+  },
+  {
+    "label": "Pathfinder - Demons",
+    "url": "http://gm.direwolf.uk/assets/pf2e_01.jpg"
+  },
+  {
+    "label": "Pathfinder - Bandits",
+    "url": "http://gm.direwolf.uk/assets/pf2e_02.jpg"
+  },
+  {
+    "label": "D&D - Monster Manual",
+    "url": "http://gm.direwolf.uk/assets/dnd_01.jpg"
+  },
+  {
+    "label": "D&D - Companions",
+    "url": "http://gm.direwolf.uk/assets/dnd_02.jpg"
+  },
+  {
+    "label": "Critical Role 4 - Soldiers",
+    "url": "http://gm.direwolf.uk/assets/Crit4_Soldiers.png"
+  },
+  {
+    "label": "VtM - City",
+    "url": "http://gm.direwolf.uk/assets/vtm_01.jpg"
+  },
+  {
+    "label": "VtM - Logo",
+    "url": "http://gm.direwolf.uk/assets/vtm_02.jpg"
+  },
+  {
+    "label": "Waves (animated)",
+    "url": "http://gm.direwolf.uk/assets/waves.webm"
+  },
+  {
+    "label": "Dice (animated)",
+    "url": "http://gm.direwolf.uk/assets/dicebg.webm"
+  }
+]

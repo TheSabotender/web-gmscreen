@@ -287,8 +287,8 @@ export class Dice3D {
     /**
      * Constructor. Create and initialize a new Dice3d.
      */
-    constructor() {
-        Hooks.call("diceSoNiceInit", this);
+    constructor() {        
+        Messages.send("diceSoNiceInit", this);
         this.dice3dRenderers = {
             "board": null,
             "showcase": null
@@ -323,7 +323,7 @@ export class Dice3D {
         DiceColors.loadTextures(TEXTURELIST, async (images) => {
             DiceColors.initColorSets();
 
-            Hooks.call("diceSoNiceReady", this);
+            Messages.send("diceSoNiceReady", this);
             await this.DiceFactory._loadFonts();
             await this.DiceFactory.preloadPresets();
         });
@@ -634,7 +634,7 @@ export class Dice3D {
                 }
             }
 
-            Hooks.callAll("diceSoNiceRollComplete", chatMessage.id);
+            Messages.send("diceSoNiceRollComplete", chatMessage.id);
 
             if (window.ui.chat.isAtBottom || chatMessage.user.id === game.user.id)
                 window.ui.chat.scrollBottom({ popout: false });
@@ -674,7 +674,7 @@ export class Dice3D {
             orderedDiceList = orderedDiceList.filter(el => el != null);
 
             let rollList = [];
-            const plus = new foundry.dice.terms.OperatorTerm({ operator: "+" });
+            const plus = "+";
             //_evaluated is false in v12, true in v13+
             if (!plus._evaluated)
                 plus.evaluate();
@@ -765,6 +765,7 @@ export class Dice3D {
                         diceTerm.options = {};
                     if (!diceTerm.options.appearance)
                         diceTerm.options.appearance = {};
+
                     diceTerm.options.appearance = foundry.utils.mergeObject(diceTerm.options.appearance, roll.options.appearance);
                 });
             }
@@ -792,10 +793,9 @@ export class Dice3D {
                 context.roll.ghost = true;
         }
 
-
-        Hooks.callAll("diceSoNiceRollStart", messageID, context);
-        //We allow the hook to modify the roll to be shown without altering the original roll reference
-        //This is useful for example to show a different roll than the one made by the user without relying on the manual showForRoll method
+        context.messageID = messageID;
+        Messages.send("diceSoNiceRollStart", context);
+        
         let hookedRoll = context.dsnRoll || context.roll;
         let notation = new DiceNotation(hookedRoll, Dice3D.ALL_CONFIG(user), user);
         return this.show(notation, context.user, synchronize, context.users, context.blind);
@@ -870,13 +870,14 @@ export class Dice3D {
      */
     waitFor3DAnimationByMessageID(targetMessageId) {
         function buildHook(resolve) {
-            Hooks.once('diceSoNiceRollComplete', (messageId) => {
+            Messages.listen('diceSoNiceRollComplete', (messageId) => {
                 if (targetMessageId === messageId)
                     resolve(true);
                 else
                     buildHook(resolve)
             });
         }
+
         return new Promise((resolve, reject) => {
             if (game.dice3d && Dice3D.CONFIG().enabled && !game.settings.get("dice-so-nice", "immediatelyDisplayChatMessages")) {
                 buildHook(resolve);

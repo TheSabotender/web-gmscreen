@@ -1,12 +1,12 @@
 // assets/main.js
 
 import './foundry-utils.js';
+import { Messages } from './messages.js';
 import { renderWallpaper, renderDesktop, setupDesktop } from './desktop.js';
 import { renderTabs, setupTabbar } from './tabbar.js';
 import { renderSettings, setupSettings } from './settings.js';
 import { initPremadeSubmenu } from './panel_premade.js';
 import { createDicePanelState, ensureDicePanels } from './panel_dice.js';
-import { Messages } from './messages.js';
 
 const STORAGE_KEY = 'webDesktopStateV1';
 

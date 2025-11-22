@@ -24,7 +24,7 @@ export default class DiceSoNiceClient {
    */
   async init() {
     if (!this._initPromise) {
-      this._initPromise = this.#initialiseDiceSoNice();
+        this._initPromise = this.#initialiseDiceSoNice();
     }
     await this._initPromise;
     return this;
@@ -32,7 +32,7 @@ export default class DiceSoNiceClient {
 
   async #initialiseDiceSoNice() {    
     this._dice = new Dice3D();
-      await this._dice.init();
+    await this._dice.init();
   }
 
   async #ensureReady() {

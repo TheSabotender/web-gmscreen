@@ -1,7 +1,7 @@
 // assets/settings.js
 
 const WEBM_PATTERN = /\.webm(?:$|\?)/i;
-const BACKGROUND_PRESETS_URL = 'assets/backgrounds.json';
+const BACKGROUND_PRESETS_URL = '/backgrounds.json';
 
 let backgroundPresetsPromise = null;
 
