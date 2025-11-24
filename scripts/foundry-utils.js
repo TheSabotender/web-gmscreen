@@ -184,6 +184,18 @@ export function mergeObject(original, other = {}, options = {}, _d = 0) {
   return mergeInto(target, other, _d);
 }
 
+export function isEmpty(original) {
+  if (original == null) return true;
+  if (Array.isArray(original)) return original.length === 0;
+  if (typeof original === 'object') {
+	for (const _key in original) {
+	  return false;
+	}
+	return true;
+  }
+  return false;
+}
+
 const globalScope = typeof globalThis !== 'undefined' ? globalThis : window;
 const foundryNamespace = globalScope.foundry || (globalScope.foundry = {});
 const utilsNamespace = foundryNamespace.utils || {};

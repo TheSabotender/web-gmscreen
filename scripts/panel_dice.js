@@ -23,6 +23,11 @@ let DiceSoNiceClientClass = null;
 let diceClientInstance = null;
 let diceClientInitPromise = null;
 
+let dice2ClientModulePromise = null;
+let DiceBoxClientClass = null;
+let dice2ClientInstance = null;
+let dice2ClientInitPromise = null;
+
 function loadDiceClientModule() {
   if (!diceClientModulePromise) {
     diceClientModulePromise = pageLoadPromise
@@ -37,6 +42,22 @@ function loadDiceClientModule() {
       });
   }
   return diceClientModulePromise;
+}
+
+function loadDice2ClientModule() {
+    if (!dice2ClientModulePromise) {
+        dice2ClientModulePromise = pageLoadPromise
+            .then(() => import('../dice-box/index.js'))
+            .then(module => {
+                DiceBoxClientClass = module.default || module;
+                return DiceBoxClientClass;
+            })
+            .catch(err => {
+                dice2ClientModulePromise = null;
+                throw err;
+            });
+    }
+    return dice2ClientModulePromise;
 }
 
 function ensureCountsObject(panel) {
@@ -89,6 +110,28 @@ async function getDiceClient() {
   }
 
   return diceClientInstance;
+}
+
+async function getDice2Client() {
+    const Dice2ClientCtor = await loadDice2ClientModule();
+    const canvas = ensureOverlay();
+    if (!dice2ClientInstance) {
+        dice2ClientInstance = new Dice2ClientCtor("#dice-box", {
+            assetPath: "/dice-box/assets", // required
+        });
+        dice2ClientInitPromise = dice2ClientInstance.init();
+    }
+
+    if (dice2ClientInitPromise) {
+        try {
+            await dice2ClientInitPromise;
+        } catch (err) {
+            console.error('Failed to initialise Dice Box.', err);
+            throw err;
+        }
+    }
+
+    return dice2ClientInstance;
 }
 
 function buildNotation(counts) {
@@ -235,7 +278,11 @@ function renderButtonsRow(context, panel, bodyEl) {
 
   const rollBtn = document.createElement('button');
   rollBtn.className = 'dice-action-btn';
-  rollBtn.textContent = 'Roll';
+  rollBtn.textContent = 'Roll (Dice-so-nice)';
+
+  const rollBtn2 = document.createElement('button');
+  rollBtn2.className = 'dice-action-btn';
+  rollBtn2.textContent = 'Roll (Dice-Box)';
 
   const clearBtn = document.createElement('button');
   clearBtn.className = 'dice-action-btn';
@@ -243,11 +290,13 @@ function renderButtonsRow(context, panel, bodyEl) {
   clearBtn.classList.add('dice-action-btn-secondary');
 
   buttonsRow.appendChild(rollBtn);
+  buttonsRow.appendChild(rollBtn2);
   buttonsRow.appendChild(clearBtn);
   bodyEl.appendChild(buttonsRow);
 
   const setButtonsEnabled = enabled => {
     rollBtn.disabled = !enabled;
+    rollBtn2.disabled = !enabled;
     clearBtn.disabled = !enabled;
   };
 
@@ -271,6 +320,29 @@ function renderButtonsRow(context, panel, bodyEl) {
       }
   });
 
+  rollBtn2.addEventListener('click', async () => {
+      const counts = panel.diceCounts || {};
+      const notation = buildNotation(counts);
+      if (!notation) {
+          return;
+      }
+
+      setButtonsEnabled(false);
+      try {
+          const dice2Client = await getDice2Client();
+
+          if (dice2Client) {
+              dice2Client.init().then(() => {
+                  dice2Client.roll("2d20");
+              });
+          }          
+      } catch (err) {
+          console.error('Failed to roll dice:', err);
+      } finally {
+          setButtonsEnabled(true);
+      }
+  });
+
   clearBtn.addEventListener('click', async () => {
     setButtonsEnabled(false);
     try {
@@ -283,7 +355,7 @@ function renderButtonsRow(context, panel, bodyEl) {
     }
   });
 
-  return { rollBtn, clearBtn };
+  return { rollBtn, rollBtn2, clearBtn };
 }
 
 function renderLoadingBar(bodyEl) {

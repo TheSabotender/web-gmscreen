@@ -1,4 +1,6 @@
 import { Dice3D } from './module/Dice3D.js';
+import { DiceNotation } from './module/DiceNotation.js';
+import { Roll } from './Roll.js';
 import { Utils } from './module/Utils.js';
 
 /**
@@ -45,30 +47,34 @@ export default class DiceSoNiceClient {
   }
 
   /**
+  * Forwarder for DiceSoNice that empties the canvas immediately.
+  */
+  clear() {
+
+  }
+
+  /**
+  * Append dice to the current scene without clearing existing results.
+  */
+  async add(notation) {
+    const dice = await this.#ensureReady();
+    //return dice.renderRolls(notation);
+
+    let roll = new Roll(notation);
+    let data = new DiceNotation(roll, Dice3D.ALL_CONFIG(), {id: "me"});
+    return dice.show(data, false, null, false);
+
+    //const dsnRoll = await new Roll(parameters).evaluate();
+    //game.dice3d.showForRoll(dsnRoll, game.user, true);
+  }
+
+  /**
    * Roll a set of dice. The notation can be a standard dice string ("2d6")
    */
   async roll(notation) {
     const dice = await this.#ensureReady();
-    clear();
-    return add(notation);
-  }
-
-  /**
-   * Append dice to the current scene without clearing existing results.
-   */
-  async add(notation) {
-    const dice = await this.#ensureReady();
-      return dice.renderRolls(notation, rolls);
-
-      //const dsnRoll = await new Roll(parameters).evaluate();
-      //game.dice3d.showForRoll(dsnRoll, game.user, true);
-  }
-
-  /**
-   * Forwarder for DiceSoNice that empties the canvas immediately.
-   */
-  clear() {
-      
+    this.clear();
+    return this.add(notation);
   }
 
   /**

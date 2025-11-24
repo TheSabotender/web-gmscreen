@@ -11,7 +11,7 @@ const DEFAULT_HANDLER = 'main';
 
 const isPromise = o => typeof o === 'object' && o !== null && typeof o.then === 'function' && typeof o.catch === 'function';
 
-export function RegisterPromise(fn) {
+export default function RegisterPromise(fn) {
   const handlers = {[DEFAULT_HANDLER]: fn};
   const sendPostMessage = self.postMessage.bind(self);
 
