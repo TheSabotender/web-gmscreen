@@ -10,28 +10,28 @@ export const TEXTURELIST = {
 	'cloudy': {
 		name: 'DICESONICE.TextureCloudsTransparent',
 		composite: 'destination-in',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'cloudy.webp',
 		bump: 'cloudy.alt.webp'
 	},
 	'cloudy_2': {
 		name: 'DICESONICE.TextureClouds',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'cloudy.alt.webp',
 		bump: 'cloudy.alt.webp'
 	},
 	'fire': {
 		name: 'DICESONICE.TextureFire',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'fire.webp',
 		bump: 'fire.webp'
 	},
 	'marble': {
 		name: 'DICESONICE.TextureMarble',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'marble.webp',
 		bump: '',
 		material: "glass"
@@ -39,7 +39,7 @@ export const TEXTURELIST = {
 	'water': {
 		name: 'DICESONICE.TextureWaterTransparent',
 		composite: 'destination-in',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'water.webp',
 		bump: 'water.webp',
 		material: 'glass',
@@ -47,7 +47,7 @@ export const TEXTURELIST = {
 	'water_2': {
 		name: 'DICESONICE.TextureWater',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'water.webp',
 		bump: 'water.webp',
 		material: 'glass',
@@ -55,7 +55,7 @@ export const TEXTURELIST = {
 	'ice': {
 		name: 'DICESONICE.TextureIceTransparent',
 		composite: 'destination-in',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'ice.webp',
 		bump: 'ice.webp',
 		material: 'glass'
@@ -63,7 +63,7 @@ export const TEXTURELIST = {
 	'ice_2': {
 		name: 'DICESONICE.TextureIce',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'ice.webp',
 		bump: 'ice.webp',
 		material: 'glass'
@@ -71,7 +71,7 @@ export const TEXTURELIST = {
 	'paper': {
 		name: 'DICESONICE.TexturePaper',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'paper.webp',
 		bump: 'paper_bump.webp',
 		material: 'wood'
@@ -79,35 +79,35 @@ export const TEXTURELIST = {
 	'speckles': {
 		name: 'DICESONICE.TextureSpeckles',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'speckles.webp',
 		bump: 'speckles.webp'
 	},
 	'glitter': {
 		name: 'DICESONICE.TextureGlitter',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'glitter.webp',
 		bump: 'glitter_bump.webp'
 	},
 	'glitter_2': {
 		name: 'DICESONICE.TextureGlitterTransparent',
 		composite: 'destination-in',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'glitter-alpha.webp',
 		bump: ''
 	},
 	'stars': {
 		name: 'DICESONICE.TextureStars',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'stars.webp',
 		bump: 'stars.webp'
 	},
 	'stainedglass': {
 		name: 'DICESONICE.TextureStainedGlass',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'stainedglass.webp',
 		bump: 'stainedglass_bump.webp',
 		material: 'iridescent'
@@ -115,14 +115,14 @@ export const TEXTURELIST = {
 	'skulls': {
 		name: 'DICESONICE.TextureSkulls',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'skulls.webp',
 		bump: 'skulls.webp'
 	},
 	'leopard': {
 		name: 'DICESONICE.TextureLeopard',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'leopard.webp',
 		bump: 'leopard.webp',
 		material: 'wood'
@@ -130,7 +130,7 @@ export const TEXTURELIST = {
 	'tiger': {
 		name: 'DICESONICE.TextureTiger',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'tiger.webp',
 		bump: 'tiger.webp',
 		material: 'wood'
@@ -138,7 +138,7 @@ export const TEXTURELIST = {
 	'cheetah': {
 		name: 'DICESONICE.TextureCheetah',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'cheetah.webp',
 		bump: 'cheetah.webp',
 		material: 'wood'
@@ -146,35 +146,35 @@ export const TEXTURELIST = {
 	'dragon': {
 		name: 'Dragon',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'dragon.webp',
 		bump: 'dragon_bump.webp'
 	},
 	'lizard': {
 		name: 'Lizard',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'lizard.webp',
 		bump: 'lizard_bump.webp'
 	},
 	'bird': {
 		name: 'Bird',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'feather.webp',
 		bump: 'feather_bump.webp'
 	},
 	'astral': {
 		name: 'DICESONICE.TextureAstralSea',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'astral.webp',
 		bump: 'stars.webp'
 	},
 	'wood': {
 		name: 'DICESONICE.TextureWood',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'wood.webp',
 		bump: 'wood.webp',
 		material: 'wood'
@@ -182,7 +182,7 @@ export const TEXTURELIST = {
 	'metal': {
 		name: 'DICESONICE.TextureMetal',
 		composite: 'multiply',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'metal.webp',
 		bump: '',
 		material: 'metal'
@@ -190,7 +190,7 @@ export const TEXTURELIST = {
 	'stone': {
 		name: 'DICESONICE.TextureStone',
 		composite: 'soft-light',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'stone.webp',
 		bump: 'stone.webp',
 		material: 'stone'
@@ -198,14 +198,14 @@ export const TEXTURELIST = {
 	'radial': {
 		name: 'DICESONICE.TextureRadial',
 		composite: 'source-over',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'radial.webp',
 		bump: '',
 	},
 	'bronze01': {
 		name: 'DICESONICE.TextureBronze1',
 		composite: 'difference',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'bronze01.webp',
 		material: 'metal',
 		bump: ''
@@ -213,7 +213,7 @@ export const TEXTURELIST = {
 	'bronze02': {
 		name: 'DICESONICE.TextureBronze2',
 		composite: 'difference',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'bronze02.webp',
 		material: 'metal',
 		bump: ''
@@ -221,7 +221,7 @@ export const TEXTURELIST = {
 	'bronze03': {
 		name: 'DICESONICE.TextureBronze3',
 		composite: 'difference',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'bronze03.webp',
 		material: 'metal',
 		bump: ''
@@ -229,7 +229,7 @@ export const TEXTURELIST = {
 	'bronze03a': {
 		name: 'DICESONICE.TextureBronze3a',
 		composite: 'difference',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'bronze03a.webp',
 		material: 'metal',
 		bump: ''
@@ -237,7 +237,7 @@ export const TEXTURELIST = {
 	'bronze03b': {
 		name: 'DICESONICE.TextureBronze3b',
 		composite: 'difference',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'bronze03b.webp',
 		material: 'metal',
 		bump: ''
@@ -245,7 +245,7 @@ export const TEXTURELIST = {
 	'bronze04': {
 		name: 'DICESONICE.TextureBronze4',
 		composite: 'difference',
-		atlas: "modules/dice-so-nice/textures/standard.json",
+		atlas: "dice-so-nice/module/textures/standard.json",
 		source: 'bronze04.webp',
 		material: 'metal',
 		bump: ''

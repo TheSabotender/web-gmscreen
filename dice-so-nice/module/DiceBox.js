@@ -213,10 +213,10 @@ export class DiceBox {
 			this.renderer.scopedTextureCache = { type: type };
 			if (this.dicefactory.realisticLighting) {
 				let textureLoader = new TextureLoader();
-				this.renderer.scopedTextureCache.roughnessMap_fingerprint = textureLoader.load('modules/dice-so-nice/textures/roughnessMap_finger.webp');
-				this.renderer.scopedTextureCache.roughnessMap_wood = textureLoader.load('modules/dice-so-nice/textures/roughnessMap_wood.webp');
-				this.renderer.scopedTextureCache.roughnessMap_metal = textureLoader.load('modules/dice-so-nice/textures/roughnessMap_metal.webp');
-				this.renderer.scopedTextureCache.roughnessMap_stone = textureLoader.load('modules/dice-so-nice/textures/roughnessMap_stone.webp');
+				this.renderer.scopedTextureCache.roughnessMap_fingerprint = textureLoader.load('dice-so-nice/module/textures/roughnessMap_finger.webp');
+				this.renderer.scopedTextureCache.roughnessMap_wood = textureLoader.load('dice-so-nice/module/textures/roughnessMap_wood.webp');
+				this.renderer.scopedTextureCache.roughnessMap_metal = textureLoader.load('dice-so-nice/module/textures/roughnessMap_metal.webp');
+				this.renderer.scopedTextureCache.roughnessMap_stone = textureLoader.load('dice-so-nice/module/textures/roughnessMap_stone.webp');
 
 				//set anisotropy
 				this.renderer.scopedTextureCache.roughnessMap_fingerprint.anisotropy = this.anisotropy;
@@ -229,7 +229,7 @@ export class DiceBox {
 
 				new HDRLoader()
 					.setDataType(HalfFloatType)
-					.setPath('modules/dice-so-nice/textures/equirectangular/')
+					.setPath('dice-so-nice/module/textures/equirectangular/')
 					.load('blouberg_sunrise_2_1k.hdr', function (texture) {
 						this.renderer.scopedTextureCache.textureCube = this.pmremGenerator.fromEquirectangular(texture).texture;
 						this.renderer.scopedTextureCache.textureCube.colorSpace = SRGBColorSpace;
@@ -242,7 +242,7 @@ export class DiceBox {
 					}.bind(this));
 			} else {
 				let loader = new CubeTextureLoader();
-				loader.setPath('modules/dice-so-nice/textures/cubemap/');
+				loader.setPath('dice-so-nice/module/textures/cubemap/');
 
 				this.renderer.scopedTextureCache.textureCube = loader.load([
 					'px.webp', 'nx.webp',

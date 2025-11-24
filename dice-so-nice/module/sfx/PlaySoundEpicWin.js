@@ -3,7 +3,7 @@ import { DiceSFX } from '../DiceSFX.js';
 export class PlaySoundEpicWin extends DiceSFX {
     static id = "PlaySoundEpicWin";
     static specialEffectName = "DICESONICE.PlaySoundEpicWin";
-    static path = 'modules/dice-so-nice/sfx/sounds/epic_win.mp3';
+    static path = 'dice-so-nice/module/sfx/sounds/epic_win.mp3';
     static PLAY_ONLY_ONCE_PER_MESH = true;
     /**@override init */
     static async init(){

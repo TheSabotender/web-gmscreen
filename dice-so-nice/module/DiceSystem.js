@@ -190,7 +190,7 @@ export class DiceSystem {
         this._scopedSettings = new Map();
         //called after the system is added to the dice factory
         //check for saved settings and load them
-        const savedSettings = game.user.getFlag("dice-so-nice", "appearance");
+        const savedSettings = localStorage.getItem("dice-appearance");
 
         //set default settings (just key/value pairs)
         const defaultSettings = this.settings.reduce((acc, { id, defaultValue }) => ({ ...acc, [id]: defaultValue }), {});

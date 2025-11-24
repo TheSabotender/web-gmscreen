@@ -7,10 +7,10 @@ export class PlayAnimationParticleVortex extends DiceSFX {
     static id = "PlayAnimationParticleVortex";
     static specialEffectName = "DICESONICE.PlayAnimationParticleVortex";
     static sprite = null;
-    static sound = "modules/dice-so-nice/sfx/sounds/vortex.mp3";
+    static sound = "dice-so-nice/module/sfx/sounds/vortex.mp3";
     /**@override init */
     static async init() {
-        let map = await this.loadAsset(DiceSFXManager.TextureLoader, "modules/dice-so-nice/sfx/textures/magic01.webp");
+        let map = await this.loadAsset(DiceSFXManager.TextureLoader, "dice-so-nice/module/sfx/textures/magic01.webp");
         let material = new MeshBasicMaterial({
             map: map,
             blending:NormalBlending,

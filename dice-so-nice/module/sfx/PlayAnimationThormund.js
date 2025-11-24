@@ -7,8 +7,8 @@ import { ShaderUtils } from './../ShaderUtils.js';
 export class PlayAnimationThormund extends DiceSFX {
     static id = "PlayAnimationThormund";
     static specialEffectName = "DICESONICE.PlayAnimationThormund";
-    static file = "modules/dice-so-nice/sfx/models/thormund.glb";
-    static sound = "modules/dice-so-nice/sfx/sounds/thormund.mp3";
+    static file = "dice-so-nice/module/sfx/models/thormund.glb";
+    static sound = "dice-so-nice/module/sfx/sounds/thormund.mp3";
     static model = null;
     static curve = null;
     static duration1 = 2.5;

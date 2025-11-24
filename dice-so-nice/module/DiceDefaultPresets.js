@@ -20,7 +20,7 @@ BASE_PRESETS_LIST.push(diceobj);
 
 diceobj = new DicePreset('dc', 'd2');
 diceobj.term = 'Coin';
-diceobj.setAtlas('modules/dice-so-nice/textures/standard.json');
+diceobj.setAtlas('dice-so-nice/module/textures/standard.json');
 diceobj.setLabels([
     'tail.webp',
     'heads.webp'
@@ -155,7 +155,7 @@ BASE_PRESETS_LIST.push(diceobj);
  */
 EXTRA_PRESETS_LIST.push({
     type: "d6",
-    atlas: "modules/dice-so-nice/textures/dot.json",
+    atlas: "dice-so-nice/module/textures/dot.json",
     labels: [
         'd6-1.webp',
         'd6-2.webp',
@@ -177,7 +177,7 @@ EXTRA_PRESETS_LIST.push({
 
 EXTRA_PRESETS_LIST.push({
     type: "d6",
-    atlas: "modules/dice-so-nice/textures/dot.json",
+    atlas: "dice-so-nice/module/textures/dot.json",
     labels: [
         'd6-1-black.webp',
         'd6-2-black.webp',
@@ -308,7 +308,7 @@ EXTRA_PRESETS_LIST.push({
 
 EXTRA_PRESETS_LIST.push({
     type: "df",
-    atlas: "modules/dice-so-nice/textures/spectrum-0.json",
+    atlas: "dice-so-nice/module/textures/spectrum-0.json",
     labels: [
         'df-m.webp',
         'df-0.webp',
@@ -327,7 +327,7 @@ EXTRA_PRESETS_LIST.push({
 
 EXTRA_PRESETS_LIST.push({
     type: "d2",
-    atlas: "modules/dice-so-nice/textures/spectrum-0.json",
+    atlas: "dice-so-nice/module/textures/spectrum-0.json",
     labels: [
         'd2-1.webp',
         'd2-2.webp'
@@ -344,7 +344,7 @@ EXTRA_PRESETS_LIST.push({
 
 EXTRA_PRESETS_LIST.push({
     type: "dc",
-    atlas: "modules/dice-so-nice/textures/spectrum-0.json",
+    atlas: "dice-so-nice/module/textures/spectrum-0.json",
     labels: [
         'dc-h.webp',
         'dc-t.webp'
@@ -361,7 +361,7 @@ EXTRA_PRESETS_LIST.push({
 
 EXTRA_PRESETS_LIST.push({
     type: "d4",
-    atlas: "modules/dice-so-nice/textures/spectrum-0.json",
+    atlas: "dice-so-nice/module/textures/spectrum-0.json",
     labels: [
         'd4-1.webp',
         'd4-2.webp',
@@ -381,7 +381,7 @@ EXTRA_PRESETS_LIST.push({
 
 EXTRA_PRESETS_LIST.push({
     type: "d6",
-    atlas: "modules/dice-so-nice/textures/spectrum-0.json",
+    atlas: "dice-so-nice/module/textures/spectrum-0.json",
     labels: [
         'd6-1.webp',
         'd6-2.webp',
@@ -405,7 +405,7 @@ EXTRA_PRESETS_LIST.push({
 
 EXTRA_PRESETS_LIST.push({
     type: "d8",
-    atlas: "modules/dice-so-nice/textures/spectrum-0.json",
+    atlas: "dice-so-nice/module/textures/spectrum-0.json",
     labels: [
         'd8-1.webp',
         'd8-2.webp',
@@ -434,7 +434,7 @@ EXTRA_PRESETS_LIST.push({
 
 EXTRA_PRESETS_LIST.push({
     type: "d10",
-    atlas: "modules/dice-so-nice/textures/spectrum-0.json",
+    atlas: "dice-so-nice/module/textures/spectrum-0.json",
     labels: [
         'd10-1.webp',
         'd10-2.webp',
@@ -467,7 +467,7 @@ EXTRA_PRESETS_LIST.push({
 
 EXTRA_PRESETS_LIST.push({
     type: "d12",
-    atlas: "modules/dice-so-nice/textures/spectrum-0.json",
+    atlas: "dice-so-nice/module/textures/spectrum-0.json",
     labels: [
         'd12-1.webp',
         'd12-2.webp',
@@ -504,7 +504,7 @@ EXTRA_PRESETS_LIST.push({
 
 EXTRA_PRESETS_LIST.push({
     type: "d100",
-    atlas: "modules/dice-so-nice/textures/spectrum-0.json",
+    atlas: "dice-so-nice/module/textures/spectrum-0.json",
     labels: [
         'd100-10.webp',
         'd100-20.webp',
@@ -537,7 +537,7 @@ EXTRA_PRESETS_LIST.push({
 
 EXTRA_PRESETS_LIST.push({
     type: "d20",
-    atlas: "modules/dice-so-nice/textures/spectrum-0.json",
+    atlas: "dice-so-nice/module/textures/spectrum-0.json",
     labels: [
         'd20-1.webp',
         'd20-2.webp',

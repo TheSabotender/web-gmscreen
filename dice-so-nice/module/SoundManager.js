@@ -24,13 +24,13 @@ export class SoundManager {
 
     preloadSounds() {
         // Surfaces
-        this.fetchJsonResource('modules/dice-so-nice/sounds/surfaces.json')
+        this.fetchJsonResource('dice-so-nice/module/sounds/surfaces.json')
             .then(surfacesJson => {
                 this.processSoundsData(this.sounds_table, surfacesJson, 'surface');
             });
 
         // Hits
-        this.fetchJsonResource('modules/dice-so-nice/sounds/dicehit.json')
+        this.fetchJsonResource('dice-so-nice/module/sounds/dicehit.json')
             .then(diceHitJson => {
                 this.processSoundsData(this.sounds_dice, diceHitJson, 'dicehit');
             });
@@ -41,7 +41,7 @@ export class SoundManager {
     }
 
     processSoundsData(target, jsonData, prefix) {
-        const sound = new foundry.audio.Sound(`modules/dice-so-nice/sounds/${jsonData.resources[0]}`, {forceBuffer:true, context: game.audio.interface});
+        const sound = new foundry.audio.Sound(`dice-so-nice/module/sounds/${jsonData.resources[0]}`, {forceBuffer:true, context: game.audio.interface});
 
         //preload the sound
         sound.load().then(src => target.source = src);

@@ -25,7 +25,7 @@ export class RollableAreaConfig extends HandlebarsApplicationMixin(ApplicationV2
 
     static PARTS = {
         form: {
-            template: "modules/dice-so-nice/templates/rollable-area-config.html"
+            template: "dice-so-nice/module/templates/rollable-area-config.html"
         },
         footer: {
             template: "templates/generic/form-footer.hbs"

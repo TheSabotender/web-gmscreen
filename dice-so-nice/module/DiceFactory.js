@@ -6,7 +6,7 @@ import {DiceSystem} from './DiceSystem.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { ShaderUtils } from './ShaderUtils.js';
-import PhysicsWorker from 'web-worker:./web-workers/PhysicsWorker.js';
+import PhysicsWorker from './web-workers/PhysicsWorker.js';
 import WebworkerPromise from 'webworker-promise';
 
 import {
@@ -27,7 +27,9 @@ import {
 
 export class DiceFactory {
 
-	constructor() {
+	constructor(dice3D) {
+		this.dice3D = dice3D;
+
 		this.geometries = {};
 
 		this.physicsWorker = new WebworkerPromise(new PhysicsWorker());
@@ -44,7 +46,7 @@ export class DiceFactory {
 
 		this.loaderGLTF = new GLTFLoader();
 		this.loaderDRACO = new DRACOLoader();
-		this.loaderDRACO.setDecoderPath('modules/dice-so-nice/libs/');
+		this.loaderDRACO.setDecoderPath('dice-so-nice/module/libs/');
 		this.loaderDRACO.setDecoderConfig({type: 'wasm'});
 		this.loaderGLTF.setDRACOLoader(this.loaderDRACO);
 		this.fontLoadingPromises = [];
@@ -52,11 +54,11 @@ export class DiceFactory {
 		this.baseMaterialCache = {};
 
 		this.systems = new Map();
-		this.systems.set("standard", new DiceSystem("standard", game.i18n.localize("DICESONICE.System.Standard"), "default"));
-		this.systems.set("spectrum", new DiceSystem("spectrum", game.i18n.localize("DICESONICE.System.SpectrumDice"), "default", "Dice So Nice!"));
-		this.systems.set("foundry_vtt", new DiceSystem("foundry_vtt", game.i18n.localize("DICESONICE.System.FoundryVTT"), "default", "Dice So Nice!"));
-		this.systems.set("dot", new DiceSystem("dot", game.i18n.localize("DICESONICE.System.Dot"), "default", "Dice So Nice!"));
-		this.systems.set("dot_b", new DiceSystem("dot_b", game.i18n.localize("DICESONICE.System.DotBlack"), "default", "Dice So Nice!"));
+		this.systems.set("standard", new DiceSystem("standard", "DICESONICE.System.Standard", "default"));
+		this.systems.set("spectrum", new DiceSystem("spectrum", "DICESONICE.System.SpectrumDice", "default", "Dice So Nice!"));
+		this.systems.set("foundry_vtt", new DiceSystem("foundry_vtt", "DICESONICE.System.FoundryVTT", "default", "Dice So Nice!"));
+		this.systems.set("dot", new DiceSystem("dot", "DICESONICE.System.Dot", "default", "Dice So Nice!"));
+		this.systems.set("dot_b", new DiceSystem("dot_b", "DICESONICE.System.DotBlack", "default", "Dice So Nice!"));
 
 		//load all the systems
 		for(let [id, system] of this.systems){
@@ -71,16 +73,17 @@ export class DiceFactory {
 			this.addDicePreset(data);
 		});
 
-		for(let i in CONFIG.Dice.terms){
-			let term = CONFIG.Dice.terms[i];
+/*
+		for (let i in this.dice3D.CONFIG.dice.terms){
+			let term = this.dice3D.CONFIG.dice.terms[i];
+
 			//If this is not a core dice type
-			if(![foundry.dice.terms.Coin, foundry.dice.terms.FateDie, foundry.dice.terms.Die].includes(term)){
-				let objTerm = new term({});
-				if([2, 3, 4, 6, 8, 10, 12, 14, 16, 20, 24, 30].includes(objTerm.faces)){
-					this.internalAddDicePreset(objTerm);
-				}
+			let objTerm = new term({});
+			if ([2, 3, 4, 6, 8, 10, 12, 14, 16, 20, 24, 30].includes(objTerm.faces)) {
+				this.internalAddDicePreset(objTerm);
 			}
 		}
+*/
 	}
 
 	initializeMaterials(){
@@ -379,7 +382,7 @@ export class DiceFactory {
 			await Promise.all(promiseArray);
 	}
 
-	//{id: 'standard', name: game.i18n.localize("DICESONICE.System.Standard")}
+	//{id: 'standard', name: "DICESONICE.System.Standard"}
 	//Internal use, legacy
 	//See dice3d.addSystem for public API
 	addSystem(system, mode="default"){
@@ -408,7 +411,7 @@ export class DiceFactory {
 		let preset = new DicePreset(dice.type, model.shape);
 		let denominator = dice.type.substring(1,dice.type.length);
 
-		preset.term = isNaN(denominator) ? CONFIG.Dice.terms[denominator].name : "Die";
+		//preset.term = isNaN(denominator) ? this.dice3D.CONFIG.dice.terms[denominator].name : "Die";
 		
 		preset.setLabels(dice.labels);
 		preset.setModel(dice.modelFile);
@@ -455,8 +458,10 @@ export class DiceFactory {
 
 		this.register(preset);
 
-		if(dice.font && !foundry.applications.settings.menus.FontConfig.getAvailableFonts().includes(dice.font)){
-			this.fontLoadingPromises.push(foundry.applications.settings.menus.FontConfig.loadFont(dice.font,{editor:false,fonts:[]}));
+		let fontConfig = foundry?.applications?.settings?.menus?.FontConfig;
+		if (dice.font && fontConfig && !fontConfig.getAvailableFonts().includes(dice.font)) {
+			let font = fontConfig.loadFont(dice.font, { editor: false, fonts: [] });
+			this.fontLoadingPromises.push(font);
 		}
 	}
 
@@ -785,7 +790,7 @@ export class DiceFactory {
 				texture.colorSpace = SRGBColorSpace;
 			texture.flipY = false;
 			mat.map = texture;
-			mat.map.anisotropy = game.dice3d.box.anisotropy;
+			mat.map.anisotropy = dice3d.box.anisotropy;
 
 			if(this.realisticLighting){
 				let bumpMap = new CanvasTexture(canvasBump);

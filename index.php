@@ -13,7 +13,7 @@ require_once __DIR__ . '/partials/config.php';
       "imports": {        
         "three": "./three/Three.js",
         "three/": "./three/",
-        "modules/dice-so-nice/": "./dice-so-nice/module/",
+        "dice-so-nice/module/": "./dice-so-nice/module/",
         "webworker-promise": "./webworker-promise/index.js",
         "webworker-promise/": "./webworker-promise/",
         "cannon-es": "./cannon-es/cannon-es.js"

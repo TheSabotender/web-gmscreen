@@ -5,7 +5,7 @@ import { DiceSFXManager } from './../DiceSFXManager.js';
 export class PlayAnimationImpact extends DiceSFX {
     static id = "PlayAnimationImpact";
     static specialEffectName = "DICESONICE.PlayAnimationImpact";
-    static sound = "modules/dice-so-nice/sfx/sounds/hit_glass.mp3";
+    static sound = "dice-so-nice/module/sfx/sounds/hit_glass.mp3";
     static planeImpact = null;
     static duration = 0.1;
      /**@override constructor */
@@ -19,7 +19,7 @@ export class PlayAnimationImpact extends DiceSFX {
             foundry.audio.AudioHelper.preloadSound(PlayAnimationImpact.sound);
         }.bind(this));
             
-        let data = await this.loadAsset(DiceSFXManager.TextureLoader, "modules/dice-so-nice/sfx/textures/glassimpact_color.webp");
+        let data = await this.loadAsset(DiceSFXManager.TextureLoader, "dice-so-nice/module/sfx/textures/glassimpact_color.webp");
         const geometry = new PlaneGeometry(730, 730);
         const material = new MeshStandardMaterial({
             map: data,

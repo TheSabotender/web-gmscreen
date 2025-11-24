@@ -51,7 +51,7 @@ export const DiceSFXManager = {
         if(!DiceSFXManager.SFX_MODE_LIST){
             DiceSFXManager.SFX_MODE_LIST = {};
             Object.values(DiceSFXManager.SFX_MODE_CLASS).forEach((sfx)=>{
-                if(sfx.id.startsWith("PlayConfettiStrength") && (!game.modules.get("confetti") || !game.modules.get("confetti").active))
+                if(sfx.id.startsWith("PlayConfettiStrength"))
                     return;
                 DiceSFXManager.SFX_MODE_LIST[sfx.id] = sfx.specialEffectName;
             });
@@ -60,23 +60,21 @@ export const DiceSFXManager = {
         DiceSFXManager.GLTFLoader = new GLTFLoader();
         DiceSFXManager.TextureLoader = new TextureLoader();
 
-        let sfxUniqueList = [];
-        game.users.forEach((user) => {
-            let sfxList = user.getFlag("dice-so-nice", "sfxList");
-            if(sfxList){
-                Object.values(sfxList).forEach((line) => {
-                    if(line.specialEffect && !Array.isArray(line.specialEffect)){
-                        sfxUniqueList.push(line.specialEffect);
-                    } 
-                });
-            }
-        });
+        let sfxUniqueList =[];
+        const sfxList = localStorage.getItem("dice-sfxList");
+        if(sfxList) {
+            Object.values(sfxList).forEach((line) => {
+                if (line.specialEffect && !Array.isArray(line.specialEffect)) {
+                    sfxUniqueList.push(line.specialEffect);
+                }
+            });
+        }
         //remove duplicate
         sfxUniqueList = sfxUniqueList.filter((v, i, a) => a.indexOf(v) === i);
 
         //for each possible sfx, initialize
         sfxUniqueList.forEach((sfxClassName) => {
-            if(sfxClassName.startsWith("PlayConfettiStrength") && (!game.modules.get("confetti") || !game.modules.get("confetti").active))
+            if(sfxClassName.startsWith("PlayConfettiStrength"))
                 return;
             DiceSFXManager.addSFXMode(DiceSFXManager.SFX_MODE_CLASS[sfxClassName]);
         });

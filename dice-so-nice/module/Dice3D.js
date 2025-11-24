@@ -15,10 +15,8 @@ import { DiceSystem } from './DiceSystem.js';
 export class Dice3D {
 
     static get DEFAULT_OPTIONS() {
-        const quality = {};
-
+        const quality = {};        
         const performanceMode = localStorage.getItem("dice-performanceMode");
-
         switch (performanceMode) {
             case 0:
                 quality.bumpMapping = false;
@@ -46,6 +44,7 @@ export class Dice3D {
                 quality.imageQuality = "high";
                 break;
         }
+
         return {
             enabled: true,
             showExtraDice: false,
@@ -76,7 +75,7 @@ export class Dice3D {
     }
 
     static DEFAULT_APPEARANCE() {
-        const diceColor = localStorage.getItem("dice-diceColor");
+        let diceColor = localStorage.getItem("dice-diceColor");
         if (!diceColor || !DiceColors.hasColor(diceColor.toString())) {
             diceColor = "none";
         }
@@ -310,7 +309,7 @@ export class Dice3D {
             bloomRadius: { value: 0.2 },
             bloomThreshold: { value: 0 },
             iridescenceLookUp: { value: new ThinFilmFresnelMap() },
-            iridescenceNoise: { value: new TextureLoader().load("textures/noise-thin-film.webp") },
+            iridescenceNoise: { value: new TextureLoader().load("dice-so-nice/module/textures/noise-thin-film.webp") },
             boost: { value: 1.5 },
             time: { value: 0 }
         };
@@ -333,7 +332,6 @@ export class Dice3D {
         DiceSFXManager.init();
         this._startQueueHandler();
         this._nextAnimationHandler();
-        this._welcomeMessage();
     }
 
     get canInteract() {
@@ -386,7 +384,7 @@ export class Dice3D {
      * @private
      */
     _buildDiceBox() {
-        this.DiceFactory = new DiceFactory();
+        this.DiceFactory = new DiceFactory(this);
         let config = Dice3D.ALL_CONFIG();
         config.boxType = "board";
 
@@ -408,14 +406,8 @@ export class Dice3D {
             }
         };
 
-        if(!rollingArea) {
-            if (ui.sidebar.expanded) {
-                dimensions.margin.right = ui.sidebar.element.clientWidth;
-            }
-        } else {
-            dimensions.width = rollingArea.width;
-            dimensions.height = rollingArea.height;
-        }
+        dimensions.width = rollingArea.width;
+        dimensions.height = rollingArea.height;
 
         return dimensions;
     }
@@ -535,45 +527,10 @@ export class Dice3D {
     }
 
     /**
-     * Show a private message to new players
-     */
-    _welcomeMessage() {
-        const welcomeMessageShown = localStorage.getItem("dice-welcomeMessageShown");
-        if (!welcomeMessageShown) {
-            const content = [`
-            <div class="dice-so-nice">
-                <h3 class="nue">DICESONICE.WelcomeTitle</h3>
-                <p class="nue">DICESONICE.WelcomeMessage1</p>
-                <p class="nue">DICESONICE.WelcomeMessage2</p>
-                <p>
-                    <button type="button" class="dice-so-nice-btn-settings" data-key="dice-so-nice.dice-so-nice">
-                        <i class="fas fa-dice-d20"></i> DICESONICE.configTitle}
-                    </button>
-                </p>
-                <p class="nue">DICESONICE.WelcomeMessage3</p>
-                <p class="nue">DICESONICE.WelcomeMessage4</p>
-                <footer class="nue">NUE.FirstLaunchHint</footer>
-            </div>
-            `];
-            const chatData = content.map(c => {
-                return {
-                    whisper: [game.user.id],
-                    speaker: { alias: "Dice So Nice!" },
-                    flags: { core: { canPopout: true } },
-                    content: c
-                };
-            });
-            ChatMessage.implementation.createDocuments(chatData);
-
-            localStorage.setItem("dice-welcomeMessageShown", true);
-        }
-    }
-
-    /**
      * Check if 3D simulation is enabled from the settings.
      */
     isEnabled() {        
-        return Dice3D.CONFIG().enabled;
+        return true;
     }
 
     /**
@@ -671,7 +628,7 @@ export class Dice3D {
             if (Array.isArray(dice) && dice.length) {
                 let termList = [...dice].map((e, i) => i < dice.length - 1 ? [e, plus] : [e]).reduce((a, b) => a.concat(b));
                 //We use the Roll class registered in the CONFIG constant in case the system overwrites it (eg: HeXXen)
-                rollList.push(CONFIG.Dice.rolls[0].fromTerms(termList));
+                rollList.push(CONFIG.dice.rolls[0].fromTerms(termList));
             }
         });
 
@@ -762,28 +719,10 @@ export class Dice3D {
 
             if (!data.throws.length || !this.isEnabled()) {
                 resolve(false);
-            } else {
-                if (synchronize) {
-                    users = users && users.length > 0 ? (users[0]?.id ? users.map(user => user.id) : users) : users;
-                    game.socket.emit("module.dice-so-nice", { type: "show", data: data, user: user.id, users: users });
-                }
-
-                if (!blind) {
-                    if (document.hidden) {
-                        this.hiddenAnimationQueue.push({
-                            data: data,
-                            config: Dice3D.ALL_CUSTOMIZATION(user, this.DiceFactory),
-                            timestamp: (new Date()).getTime(),
-                            resolve: resolve
-                        });
-                    } else {
-                        this._showAnimation(data, Dice3D.ALL_CUSTOMIZATION(user, this.DiceFactory)).then(displayed => {
-                            resolve(displayed);
-                        });
-                    }
-                } else {
-                    resolve(false);
-                }
+            } else {                
+                this._showAnimation(data, Dice3D.ALL_CUSTOMIZATION(user, this.DiceFactory)).then(displayed => {
+                    resolve(displayed);
+                });
             }
             const immediatelyDisplayChatMessages = localStorage.getItem("dice-immediatelyDisplayChatMessages");
             if (immediatelyDisplayChatMessages) {

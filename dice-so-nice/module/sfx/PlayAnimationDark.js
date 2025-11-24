@@ -7,7 +7,7 @@ export class PlayAnimationDark extends DiceSFX {
     static specialEffectName = "DICESONICE.PlayAnimationDark";
     static darkColor = null;
     static duration = 1.5;
-    static sound = "modules/dice-so-nice/sfx/sounds/darkness.mp3";
+    static sound = "dice-so-nice/module/sfx/sounds/darkness.mp3";
     /**@override init */
     static async init() {
         PlayAnimationDark.darkColor = new Color(0.1,0.1,0.1);

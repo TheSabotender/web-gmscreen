@@ -7,10 +7,10 @@ export class PlayAnimationParticleSparkles extends DiceSFX {
     static id = "PlayAnimationParticleSparkles";
     static specialEffectName = "DICESONICE.PlayAnimationParticleSparkles";
     static sprite = null;
-    static sound = "modules/dice-so-nice/sfx/sounds/sparkles.mp3";
+    static sound = "dice-so-nice/module/sfx/sounds/sparkles.mp3";
     /**@override init */
     static async init() {
-        let map = await this.loadAsset(DiceSFXManager.TextureLoader, "modules/dice-so-nice/sfx/textures/glow_point_red_gold.webp");
+        let map = await this.loadAsset(DiceSFXManager.TextureLoader, "dice-so-nice/module/sfx/textures/glow_point_red_gold.webp");
         let material = new SpriteMaterial({
             map: map,
             fog: true,
