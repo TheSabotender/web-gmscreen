@@ -53,6 +53,7 @@ export class DiceBox {
 		this.dice3d = dice3d;
 		this.container = element_container;
 		this.dicefactory = dice_factory;
+		this.physicsWorker = this.dicefactory.physicsWorker;
 		this.config = config;
 		this.speed = 1;
 		this.isVisible = false;
