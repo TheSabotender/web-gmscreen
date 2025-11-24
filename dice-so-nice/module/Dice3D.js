@@ -390,7 +390,7 @@ export class Dice3D {
 
         config.dimensions = this._computeDimensions(config.rollingArea);
 
-        this.box = new DiceBox(this.canvas[0], this.DiceFactory, config);
+        this.box = new DiceBox(this, this.canvas[0], this.DiceFactory, config);
         this.box.initialize();
     }
 
@@ -720,7 +720,7 @@ export class Dice3D {
             if (!data.throws.length || !this.isEnabled()) {
                 resolve(false);
             } else {                
-                this._showAnimation(data, Dice3D.ALL_CUSTOMIZATION(user, this.DiceFactory)).then(displayed => {
+                this._showAnimation(data, Dice3D.ALL_CUSTOMIZATION(this.DiceFactory)).then(displayed => {
                     resolve(displayed);
                 });
             }

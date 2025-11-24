@@ -184,6 +184,17 @@ export function mergeObject(original, other = {}, options = {}, _d = 0) {
   return mergeInto(target, other, _d);
 }
 
+export function isSubclass(child, parent) {
+  if (typeof child !== 'function' || typeof parent !== 'function') return false;
+  let proto = child.prototype;
+  const parentProto = parent.prototype;
+  while (proto) {
+	if (proto === parentProto) return true;
+	proto = Object.getPrototypeOf(proto);
+  }
+  return false;
+}
+
 export function isEmpty(original) {
   if (original == null) return true;
   if (Array.isArray(original)) return original.length === 0;
@@ -196,12 +207,28 @@ export function isEmpty(original) {
   return false;
 }
 
+export function isNumeric(value) {
+  let asNumber = typeof value === 'number' ? value : parseFloat(value);
+  return !isNaN(asNumber) && isFinite(asNumber);
+}
+
+export function isFinite(value) {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+export function isInteger(value) {    
+    return typeof value === 'number' && Number.isInteger(value);
+}
+
 const globalScope = typeof globalThis !== 'undefined' ? globalThis : window;
 const foundryNamespace = globalScope.foundry || (globalScope.foundry = {});
 const utilsNamespace = foundryNamespace.utils || {};
 
 utilsNamespace.mergeObject = mergeObject;
 utilsNamespace.duplicate = duplicate;
+utilsNamespace.isSubclass = isSubclass;
+utilsNamespace.isEmpty = isEmpty;
+utilsNamespace.isNumeric = isNumeric;
 
 foundryNamespace.utils = utilsNamespace;
 

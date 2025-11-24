@@ -1,6 +1,7 @@
+import './dice/config.js';
 import { Dice3D } from './module/Dice3D.js';
 import { DiceNotation } from './module/DiceNotation.js';
-import { Roll } from './Roll.js';
+import { Roll } from './dice/roll.js';
 import { Utils } from './module/Utils.js';
 
 /**

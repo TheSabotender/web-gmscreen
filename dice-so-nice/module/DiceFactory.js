@@ -6,7 +6,7 @@ import {DiceSystem} from './DiceSystem.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { ShaderUtils } from './ShaderUtils.js';
-import PhysicsWorker from './web-workers/PhysicsWorker.js';
+import PhysicsWorker from 'web-worker:./web-workers/PhysicsWorker.js';
 import WebworkerPromise from 'webworker-promise';
 
 import {

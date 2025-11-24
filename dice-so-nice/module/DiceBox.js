@@ -11,6 +11,7 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
 import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { Dice3D } from './Dice3D.js';
 
 import {
 	ACESFilmicToneMapping,
@@ -48,7 +49,8 @@ import {
 
 export class DiceBox {
 
-	constructor(element_container, dice_factory, config) {
+	constructor(dice3d, element_container, dice_factory, config) {
+		this.dice3d = dice3d;
 		this.container = element_container;
 		this.dicefactory = dice_factory;
 		this.config = config;
@@ -142,10 +144,10 @@ export class DiceBox {
 			});
 
 			this.showExtraDice = this.config.showExtraDice;
-			this.allowInteractivity = this.config.boxType == "board" && game.settings.get("dice-so-nice", "allowInteractivity");
+			this.allowInteractivity = this.config.boxType == "board" && localStorage.getItem("dice-allowInteractivity");
 
 			this.dicefactory.setQualitySettings(this.config);
-			let globalAnimationSpeed = game.settings.get("dice-so-nice", "globalAnimationSpeed");
+			let globalAnimationSpeed = localStorage.getItem("dice-globalAnimationSpeed");
 			if (globalAnimationSpeed === "0")
 				this.speed = this.config.speed;
 			else
@@ -153,15 +155,15 @@ export class DiceBox {
 			this.throwingForce = this.config.throwingForce;
 			this.immersiveDarkness = this.config.immersiveDarkness;
 			this.scene = new Scene();
-			if (game.dice3d.dice3dRenderers[this.config.boxType] != null) {
-				this.renderer = game.dice3d.dice3dRenderers[this.config.boxType];
+			if (this.dice3d.dice3dRenderers[this.config.boxType] != null) {
+				this.renderer = this.dice3d.dice3dRenderers[this.config.boxType];
 				this.scene.environment = this.renderer.scopedTextureCache.textureCube;
 				this.scene.traverse(object => {
 					if (object.type === 'Mesh') object.material.needsUpdate = true;
 				});
 			}
 			else {
-				const preserveDrawingBuffer = game.user.getFlag("dice-so-nice", "preserveDrawingBuffer") || false;
+				const preserveDrawingBuffer = localStorage.getItem("dice-preserveDrawingBuffer") || false;
 				this.renderer = new WebGLRenderer({
 					antialias: false,
 					alpha: true,
@@ -179,7 +181,7 @@ export class DiceBox {
 				this.anisotropy = capabilities.getMaxAnisotropy() < 16 ? capabilities.getMaxAnisotropy() : 16;
 				await this.loadContextScopedTextures(this.config.boxType);
 				this.dicefactory.initializeMaterials();
-				game.dice3d.dice3dRenderers[this.config.boxType] = this.renderer;
+				this.dice3d.dice3dRenderers[this.config.boxType] = this.renderer;
 			}
 
 			this.container.appendChild(this.renderer.domElement);
@@ -365,7 +367,7 @@ export class DiceBox {
 		if (this.dicefactory.realisticLighting) {
 			let renderScene = new RenderPass(this.scene, this.camera);
 			const canvasSize = new Vector2(this.display.currentWidth, this.display.currentHeight);
-			this.bloomPass = new UnrealBloomPass(canvasSize, game.dice3d.uniforms.bloomStrength.value, game.dice3d.uniforms.bloomRadius.value, game.dice3d.uniforms.bloomThreshold.value);
+			this.bloomPass = new UnrealBloomPass(canvasSize, this.dice3d.uniforms.bloomStrength.value, this.dice3d.uniforms.bloomRadius.value, this.dice3d.uniforms.bloomThreshold.value);
 			this.bloomLayer = new Layers();
 			this.bloomLayer.set(this.layers.bloom);
 			this.gammaPass = new ShaderPass(GammaCorrectionShader);
@@ -377,7 +379,7 @@ export class DiceBox {
 			let size = canvasSize.multiplyScalar(this.renderer.getPixelRatio());
 			//Create a RenderTarget with high precision
 			let options = {
-				type: game.canvas.app.renderer.context.extensions.floatTextureLinear ? FloatType : HalfFloatType,
+				type: FloatType, // : HalfFloatType,
 				samples: this.dicefactory.aa == "msaa" ? 4 : 0,
 				anisotropy: this.anisotropy
 			};
@@ -458,7 +460,7 @@ export class DiceBox {
 
 		this.dicefactory.setQualitySettings(config);
 
-		let globalAnimationSpeed = game.settings.get("dice-so-nice", "globalAnimationSpeed");
+		let globalAnimationSpeed = localStorage.getItem("dice-globalAnimationSpeed");
 		if (globalAnimationSpeed === "0")
 			this.speed = parseInt(config.speed, 10);
 		else
@@ -812,7 +814,7 @@ export class DiceBox {
 			minIterations: this.minIterations,
 			nbIterationsBetweenRolls: this.nbIterationsBetweenRolls,
 			framerate: this.framerate,
-			canBeFlipped: game.settings.get("dice-so-nice", "diceCanBeFlipped")
+			canBeFlipped: localStorage.getItem("dice-diceCanBeFlipped")
 		}
 
 		const { ids, quaternionsBuffers, positionsBuffers, detectedCollides, deads, iterationsNeeded } = await this.physicsWorker.exec('simulateThrow', workerData);
@@ -975,7 +977,8 @@ export class DiceBox {
 			countNewDice += notation.dice.length;
 		});
 
-		let maxDiceNumber = game.settings.get("dice-so-nice", "maxDiceNumber");
+		//let maxDiceNumber = game.settings.get("dice-so-nice", "maxDiceNumber");
+		let maxDiceNumber = 100;
 		if (this.deadDiceList.length + this.diceList.length + countNewDice > maxDiceNumber) {
 			await this.clearAll();
 		}
@@ -1047,10 +1050,10 @@ export class DiceBox {
 		}
 
 		//Update time uniform
-		game.dice3d.uniforms.time.value = performance.now() / 1000;
+		this.dice3d.uniforms.time.value = performance.now() / 1000;
 
 		if (this.dicefactory.realisticLighting) {
-			game.dice3d.uniforms.globalBloom.value = 1;
+			this.dice3d.uniforms.globalBloom.value = 1;
 			if (!this.finalComposer)
 				return;
 
@@ -1073,7 +1076,7 @@ export class DiceBox {
 			} else {
 				this.blendingPass.enabled = false;
 			}
-			game.dice3d.uniforms.globalBloom.value = 0;
+			this.dice3d.uniforms.globalBloom.value = 0;
 			this.finalComposer.render();
 		} else {
 			this.renderer.render(this.scene, this.camera);

@@ -50,7 +50,8 @@ export class DiceNotation {
 			}
 		});
 		let diceNumber = 0;
-		let maxDiceNumber = game.settings.get("dice-so-nice", "maxDiceNumber");
+		//let maxDiceNumber = game.settings.get("dice-so-nice", "maxDiceNumber");
+		let maxDiceNumber = 100;
 		//Then we can create the throws
 		rolls.dice.some(die => {
 			//We only are able to handle this list of number of face in 3D for now
