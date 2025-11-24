@@ -18,9 +18,28 @@ export default class WebworkerPromise extends TinyEmitter {
     this._messageId = 1;
     this._messages = new Map();
 
-    this._worker = worker;
+    this._worker = this._resolveWorker(worker);
     this._worker.onmessage = this._onMessage.bind(this);
     this._id = Math.ceil(Math.random() * 10000000);
+  }
+
+  _resolveWorker(worker) {
+    // Some bundlers wrap the Worker instance in a default export or expose it
+    // on a `worker` property. Normalize these shapes so downstream calls always
+    // use a real Worker-like object.
+    if (worker && typeof worker.postMessage === 'function') {
+      return worker;
+    }
+
+    if (worker && typeof worker.default === 'object' && typeof worker.default.postMessage === 'function') {
+      return worker.default;
+    }
+
+    if (worker && typeof worker.worker === 'object' && typeof worker.worker.postMessage === 'function') {
+      return worker.worker;
+    }
+
+    throw new Error('Invalid worker provided to WebworkerPromise');
   }
 
   terminate() {
