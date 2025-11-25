@@ -6,7 +6,6 @@ import {DiceSystem} from './DiceSystem.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { ShaderUtils } from './ShaderUtils.js';
-import PhysicsWorker from 'web-worker:./web-workers/PhysicsWorker.js';
 import WebworkerPromise from 'webworker-promise';
 
 import {
@@ -32,7 +31,10 @@ export class DiceFactory {
 
 		this.geometries = {};
 
-		this.physicsWorker = new WebworkerPromise(new PhysicsWorker());
+		this.physicsWorker = new Worker(new URL('./web-workers/PhysicsWorker.js', import.meta.url), {
+			type: 'module'
+		});
+		//this.physicsWorker = new WebworkerPromise(new PhysicsWorker());
 
 		this.baseScale = 50;
 
