@@ -8,6 +8,8 @@ export class SoundManager {
         this.soundsSurface = "felt";
         this.muteSoundSecretRolls = false;
         this.preloaded = false;
+        this.audioContext = null;
+        this.preloadPromise = null;
     }
 
     update(config) {
@@ -16,51 +18,84 @@ export class SoundManager {
         this.soundsSurface = config.soundsSurface || this.soundsSurface;
         this.muteSoundSecretRolls = config.muteSoundSecretRolls || this.muteSoundSecretRolls;
 
-        if (!this.preloaded) {
-            this.preloaded = true;
-            game.audio.pending.push(this.preloadSounds.bind(this));
-        }
+        this.ensurePreload();
+    }
+
+    ensurePreload() {
+        if (this.preloadPromise) return this.preloadPromise;
+
+        this.preloaded = true;
+        this.preloadPromise = this.preloadSounds();
+        return this.preloadPromise;
     }
 
     preloadSounds() {
         // Surfaces
-        this.fetchJsonResource('dice-so-nice/module/sounds/surfaces.json')
-            .then(surfacesJson => {
-                this.processSoundsData(this.sounds_table, surfacesJson, 'surface');
-            });
+        const surfacesPromise = this.fetchJsonResource('dice-so-nice/module/sounds/surfaces.json')
+            .then(surfacesJson => this.processSoundsData(this.sounds_table, surfacesJson, 'surface'));
 
         // Hits
-        this.fetchJsonResource('dice-so-nice/module/sounds/dicehit.json')
-            .then(diceHitJson => {
-                this.processSoundsData(this.sounds_dice, diceHitJson, 'dicehit');
-            });
+        const diceHitPromise = this.fetchJsonResource('dice-so-nice/module/sounds/dicehit.json')
+            .then(diceHitJson => this.processSoundsData(this.sounds_dice, diceHitJson, 'dicehit'));
+
+        return Promise.all([surfacesPromise, diceHitPromise]).catch(() => {});
     }
 
     fetchJsonResource(url) {
         return fetch(url).then(response => response.json());
     }
 
-    processSoundsData(target, jsonData, prefix) {
-        const sound = new foundry.audio.Sound(`dice-so-nice/module/sounds/${jsonData.resources[0]}`, {forceBuffer:true, context: game.audio.interface});
+    ensureAudioContext() {
+        if (!this.audioContext) {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            this.audioContext = new AudioContextClass();
+        }
+        return this.audioContext;
+    }
 
-        //preload the sound
-        sound.load().then(src => target.source = src);
+    loadAudioBuffer(url) {
+        const context = this.ensureAudioContext();
+        return fetch(url)
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => context.decodeAudioData(arrayBuffer));
+    }
+
+    processSoundsData(target, jsonData, prefix) {
+        const resourcePath = `dice-so-nice/module/sounds/${jsonData.resources[0]}`;
+        const loadPromise = this.loadAudioBuffer(resourcePath)
+            .then(buffer => target.source = { buffer })
+            .catch(() => {});
 
         Object.entries(jsonData.spritemap).forEach(sound => {
-            let type = sound[0].match(new RegExp(`${prefix}\\_([a-z\\_]*)`))[1];
+            let type = sound[0].match(new RegExp(`${prefix}\_([a-z\_]*)`))[1];
             if (!target[type])
                 target[type] = [];
             target[type].push(sound[1]);
         });
+
+        return loadPromise;
     }
 
     playAudioSprite(source, sprite, selfVolume) {
-        if (!source)
+        if (!source || !source.buffer)
             return false;
 
-        const spriteInstance = new foundry.audio.Sound(source.src,{forceBuffer:true, context: game.audio.interface});
-        //in v12, the load() method use a cache so we can call it without any extra network calls
-        spriteInstance.load().then(sound => sound.play({loop: sprite.loop, loopStart: sprite.start, loopEnd: sprite.end, volume: selfVolume * this.volume}));
+        const context = this.ensureAudioContext();
+
+        const gainNode = context.createGain();
+        gainNode.gain.value = selfVolume * this.volume;
+        gainNode.connect(context.destination);
+
+        const bufferSource = context.createBufferSource();
+        bufferSource.buffer = source.buffer;
+        bufferSource.loop = sprite.loop;
+        bufferSource.loopStart = sprite.start;
+        bufferSource.loopEnd = sprite.end;
+        bufferSource.connect(gainNode);
+
+        const offset = sprite.start;
+        const duration = sprite.end - sprite.start;
+        bufferSource.start(0, offset, duration);
     }
 
     eventCollide({ source, diceType, diceMaterial, strength }) {
