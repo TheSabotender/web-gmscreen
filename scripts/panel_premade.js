@@ -41,38 +41,13 @@ function buildPremadeTree(panels) {
   const root = { label: null, children: [] };
 
   panels.forEach(p => {
-    if (p.id === '-') {
-      const name = (p.name || '').trim();
-      if (!name) {
-        root.children.push({ separator: true });
-        return;
-      }
-
-      const segments = name.split('/').map(s => s.trim()).filter(Boolean);
-      if (!segments.length) {
-        root.children.push({ separator: true });
-        return;
-      }
-
-      let current = root;
-      segments.forEach(seg => {
-        let child = current.children.find(
-          c => c.label === seg && !c.panelId && !c.separator
-        );
-
-        if (!child) {
-          child = { label: seg, children: [] };
-          current.children.push(child);
-        }
-        current = child;
-      });
-
-      current.children.push({ separator: true });
-      return;
-    }
-
-    const fullName = p.name || p.id;
-    const segments = fullName.split('/').map(s => s.trim()).filter(Boolean);
+    const name = p.name || p.id;
+    const segments = [
+      ...(Array.isArray(p.folders) ? p.folders : []),
+      name
+    ]
+      .map(s => (typeof s === 'string' ? s.trim() : ''))
+      .filter(Boolean);
     if (!segments.length) return;
 
     let current = root;
@@ -100,13 +75,6 @@ function buildPremadeTree(panels) {
 
 function renderPremadeTree(nodes, container) {
   nodes.forEach(node => {
-    if (node.separator) {
-      const sep = document.createElement('li');
-      sep.className = 'context-separator';
-      container.appendChild(sep);
-      return;
-    }
-
     const li = document.createElement('li');
     li.className = 'context-item';
 
