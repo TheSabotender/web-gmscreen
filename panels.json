@@ -12,8 +12,8 @@
     "name": "Pf2e/Earn Income",
     "file": "panels/Pf2e/earnIncome.html",
     "source": "https://2e.aonprd.com/Actions.aspx?ID=2364",
-    "width": 600,
-    "height": 910
+    "width": 617,
+    "height": 553
   },
   {
     "id": "-",
@@ -24,24 +24,24 @@
     "name": "Pf2e/Encounter Budget",
     "file": "panels/Pf2e/encounterBudget.html",
     "source": "https://2e.aonprd.com/Rules.aspx?ID=2717",
-    "width": 600,
-    "height": 910
-  },  
+    "width": 731,
+    "height": 422
+  },
   {
     "id": "pf2e-creatureNumbers",
     "name": "Pf2e/Building Creatures",
     "file": "panels/Pf2e/creatureNumbers.html",
     "source": "https://2e.aonprd.com/Rules.aspx?ID=2874",
-    "width": 600,
-    "height": 910
+    "width": 640,
+    "height": 625
   },
   {
     "id": "pf2e-conditions",
     "name": "Pf2e/Conditions",
     "file": "panels/Pf2e/conditions.html",
     "source": "https://2e.aonprd.com/Conditions.aspx",
-    "width": 680,
-    "height": 880
+    "width": 699,
+    "height": 865
   },
   {
     "id": "-",
@@ -52,23 +52,23 @@
     "name": "Pf2e/XP Awards",
     "file": "panels/Pf2e/xpAwards.html",
     "source": "https://2e.aonprd.com/Rules.aspx?ID=2649",
-    "width": 600,
-    "height": 910
+    "width": 400,
+    "height": 744
   },
   {
     "id": "pf2e-treasureByLevel",
     "name": "Pf2e/Treasure by Level",
     "file": "panels/Pf2e/treasureByLevel.html",
     "source": "https://2e.aonprd.com/Rules.aspx?ID=2656",
-    "width": 600,
-    "height": 910
+    "width": 960,
+    "height": 512
   },
   {
     "id": "pf2e-treasureByEncounter",
     "name": "Pf2e/Treasure by Encounter",
     "file": "panels/Pf2e/treasureByEncounter.html",
     "source": "https://2e.aonprd.com/Rules.aspx?ID=2738",
-    "width": 600,
-    "height": 910
+    "width": 695,
+    "height": 522
   }
 ]
