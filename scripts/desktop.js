@@ -69,10 +69,26 @@ function getActiveTab(context = ctx) {
     return (state.tabs || []).find(t => t.id === state.activeTabId);
 }
 
-function getPlayerTab(context = ctx) {
-    const state = context.getState();
-    let panel = (state.tabs || []).find(t => t.title === "Player");
-    return panel;
+function sendPanelToTab(panel, destinationTab, context = ctx) {
+    if (!panel || !destinationTab) return;
+    if (panel.type === 'dice') return;
+
+    const options = {
+        x: panel.x,
+        y: panel.y,
+        width: panel.width,
+        height: panel.height,
+        premadeId: panel.premadeId || null,
+        layoutMode: panel.layoutMode || null,
+        customContent: panel.customContent || null,
+        externalUrl: panel.externalUrl || null,
+        subPanels: panel.subPanels || null,
+        title: panel.title,
+        minimized: panel.minimized
+    };
+
+    addPanel(context, destinationTab, panel.type, options);
+    closePanel(panel.id, false, context);
 }
 
 function addPanel(context, tab, type, options = {}) {
@@ -99,7 +115,7 @@ function addPanel(context, tab, type, options = {}) {
         zIndex: context.bumpZCounter(),
         width: options.width ?? defaultWidth,
         height: options.height ?? defaultHeight,
-        minimized: false
+        minimized: options.minimized ?? false
     };
 
     if (type === 'premade') {
@@ -605,6 +621,10 @@ function showPanelMenu(x, y, target) {
     const child = target.child || null;
     const type = isTopLevel ? panel.type : (child?.type || 'empty');
 
+    const sendMenuItem = panelContextMenu.querySelector('#panel-send-to-tab');
+    const sendMenuSubmenu = panelContextMenu.querySelector('#panel-send-to-tab-submenu');
+    const state = ctx.getState();
+
     const premadeItems = panelContextMenu.querySelectorAll('.panel-menu-premade');
     const premadeSourceItems = panelContextMenu.querySelectorAll('.panel-menu-premade-source');
     const customItems = panelContextMenu.querySelectorAll('.panel-menu-custom');
@@ -650,6 +670,26 @@ function showPanelMenu(x, y, target) {
     }
     setVisible(layoutChildRemoveItems, showChildRemove);
 
+    if (sendMenuItem && sendMenuSubmenu) {
+        const otherTabs = (state.tabs || []).filter(t => t.id !== state.activeTabId);
+        const canSend = isTopLevel && panel.type !== 'dice' && otherTabs.length > 0;
+        if (!canSend) {
+            sendMenuItem.style.display = 'none';
+        } else {
+            sendMenuItem.style.display = '';
+            sendMenuSubmenu.innerHTML = '';
+            otherTabs.forEach(tab => {
+                const li = document.createElement('li');
+                li.className = 'context-item';
+                if (tab.title === 'Player') li.classList.add('player-destination');
+                li.dataset.action = 'panel-send-to-tab';
+                li.dataset.tabId = tab.id;
+                li.textContent = tab.title || '(Untitled)';
+                sendMenuSubmenu.appendChild(li);
+            });
+        }
+    }
+
     positionMenuWithinViewport(panelContextMenu, x, y);
 }
 
@@ -669,7 +709,7 @@ function getCustomTarget(targetInfo) {
     return targetInfo.child;
 }
 
-function handlePanelMenuAction(targetInfo, action) {
+function handlePanelMenuAction(targetInfo, action, meta = {}) {
     if (!targetInfo) return;
 
     const kind = targetInfo.kind;
@@ -759,51 +799,19 @@ function handlePanelMenuAction(targetInfo, action) {
             ctx.renderDesktop();
             break;
         }
-        case 'panel-send-to-player': {
+        case 'panel-send-to-tab': {
             if (kind !== 'panel') return;
-            if (kind === 'dice') return;
+            if (parentPanel.type === 'dice') return;
+            const targetTabId = meta?.targetTabId;
+            if (!targetTabId) return;
 
-            const x = parentPanel.x;
-            const y = parentPanel.y;
+            const state = ctx.getState();
+            const destinationTab = (state.tabs || []).find(t => t.id === targetTabId);
+            const sourceInfo = findPanelById(parentPanel.id, ctx);
 
-            let playerTab = getPlayerTab(ctx);
+            if (!destinationTab || !sourceInfo || sourceInfo.tab.id === destinationTab.id) return;
 
-            if (!playerTab) {
-                const id = ctx.uid('tab');
-                const tab = {
-                    id,
-                    title: 'Player',
-                    panels: []
-                };
-                const state = ctx.getState();
-                state.tabs.push(tab);
-                ctx.saveState();
-                ctx.renderAll();
-
-                playerTab = getPlayerTab(ctx);
-            }
-
-            let premadeId = parentPanel.premadeId || null;
-            let customContent = parentPanel.customContent || null;
-            let externalUrl = parentPanel.externalUrl || null;
-            let layoutMode = parentPanel.layoutMode || null;
-            let subPanels = parentPanel.subPanels || null;
-
-            addPanel(ctx, playerTab, parentPanel.type, {
-                x,
-                y,
-                premadeId,
-                layoutMode,
-                customContent,
-                externalUrl,
-                subPanels,
-                title: parentPanel.title
-            });
-            closePanel(parentPanel.id, false);
-
-            parentPanel.zIndex = ctx.bumpZCounter();
-            ctx.saveState();
-            ctx.renderDesktop();
+            sendPanelToTab(parentPanel, destinationTab, ctx);
             break;
         }
     }
@@ -919,8 +927,9 @@ export function setupDesktop(context) {
             if (!item) return;
             const action = item.dataset.action;
             const targetInfo = panelContextTarget;
+            const meta = { targetTabId: item.dataset.tabId || null };
             hideMenus();
-            handlePanelMenuAction(targetInfo, action);
+            handlePanelMenuAction(targetInfo, action, meta);
         });
     }
 

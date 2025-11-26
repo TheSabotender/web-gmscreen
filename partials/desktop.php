@@ -110,6 +110,11 @@
       Remove
     </li>
 
+    <li class="context-item panel-menu-send" id="panel-send-to-tab" data-action="panel-send-to-tab">
+      Send to ▸
+      <ul class="context-submenu" id="panel-send-to-tab-submenu"></ul>
+    </li>
+
     <li class="context-separator panel-menu-layer"></li>
 
     <!-- Layering: all top-level panels -->
