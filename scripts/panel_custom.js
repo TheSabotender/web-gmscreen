@@ -1,4 +1,5 @@
 // assets/panel_custom.js
+import { marked } from 'marked';
 
 export function enterCustomEditMode(context, panel, panelElement) {
   if (!panelElement) return;
@@ -56,7 +57,15 @@ export function enterCustomEditMode(context, panel, panelElement) {
 
 export function renderCustomPanel(panel, bodyEl) {
   if (!bodyEl) return;
-  bodyEl.innerHTML = panel.customContent || '<em>Empty custom panel. Click ✎ to edit.</em>';
+  
+  bodyEl.innerHTML = renderMarkdown(panel) || '<em>Empty custom panel. Click ✎ to edit.</em>';
+}
+
+function renderMarkdown(panel) {  
+  if (!panel.customContent)
+    return null;
+    
+  return marked.parse(panel.customContent);
 }
 
 export function downloadCustomPanel(target) {

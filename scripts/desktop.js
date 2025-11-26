@@ -69,8 +69,13 @@ function getActiveTab(context = ctx) {
     return (state.tabs || []).find(t => t.id === state.activeTabId);
 }
 
-function addPanel(context, type, options = {}) {
-    const tab = getActiveTab(context);
+function getPlayerTab(context = ctx) {
+    const state = context.getState();
+    let panel = (state.tabs || []).find(t => t.title === "Player");
+    return panel;
+}
+
+function addPanel(context, tab, type, options = {}) {
     if (!tab) return;
     const id = context.uid('panel');
 
@@ -101,7 +106,11 @@ function addPanel(context, type, options = {}) {
         base.premadeId = options.premadeId || null;
         base.cachedContent = null;
     } else if (type === 'custom') {
-        base.customContent = '<p>Click the ✎ in the top right corner to edit this panel.</p>';
+        if (options.customContent) {
+            base.customContent = options.customContent;
+        } else {
+            base.customContent = '<p>Click the ✎ in the top right corner to edit this panel.</p>';
+        }
     } else if (type === 'external') {
         base.externalUrl = options.externalUrl || '';
     } else if (type === 'layout') {
@@ -158,7 +167,7 @@ function togglePanelMinimized(panelId, context = ctx) {
     context.renderDesktop();
 }
 
-function closePanel(panelId, context = ctx) {
+function closePanel(panelId, warn, context = ctx) {
     const found = findPanelById(panelId, context);
     if (!found) return;
     const { tab, panel } = found;
@@ -167,7 +176,7 @@ function closePanel(panelId, context = ctx) {
         return;
     }
 
-    if (panel.type === 'custom') {
+    if (warn && panel.type === 'custom') {
         const ok = confirm('Close this custom panel? Its custom content will be lost.');
         if (!ok) return;
     }
@@ -216,7 +225,7 @@ export function renderWallpaper(context) {
     }
 }
 
-export function renderDesktop(context) {
+export function renderDesktop(context, isPlayerView) {
     ctx = context;
     const state = context.getState();
     const { desktop } = context.elements;
@@ -227,201 +236,215 @@ export function renderDesktop(context) {
     const currentTab = getActiveTab(context);
     if (!currentTab) return;
 
-    currentTab.panels.forEach(panel => {
-        const el = document.createElement('div');
-        el.className = 'panel';
-        el.dataset.panelId = panel.id;
-
-        el.style.left = (panel.x ?? 60) + 'px';
-        el.style.top = (panel.y ?? 60) + 'px';
-        el.style.zIndex = typeof panel.zIndex === 'number' ? panel.zIndex : 1;
-        el.style.height = (panel.height ?? 200) + 'px';
-
-        if (panel.minimized) {
-            if (panel.type === 'dice') {
-                el.classList.add('minimizeddice');
-                el.style.width = '40px';
-                el.style.height = '40px';
-            } else {
-                el.classList.add('minimized');
-                el.style.width = 'auto';
+    if (currentTab.panels) {
+        currentTab.panels.forEach(panel => {
+            if (panel.type === 'dice' && isPlayerView) {
+                return;
             }
-        } else {
-            if (panel.type === 'dice') {
-                el.style.width = '500px';
-                el.style.height = '200px';
-            } else {
-                el.style.width = (panel.width ?? 320) + 'px';
-            }
-        }
 
-        const header = document.createElement('div');
-        header.className = 'panel-header';
+            const el = document.createElement('div');
+            el.className = 'panel';
+            el.dataset.panelId = panel.id;
 
-        const title = document.createElement('div');
-        title.className = 'panel-title';
+            el.style.left = (panel.x ?? 60) + 'px';
+            el.style.top = (panel.y ?? 60) + 'px';
+            el.style.zIndex = typeof panel.zIndex === 'number' ? panel.zIndex : 1;
+            el.style.height = (panel.height ?? 200) + 'px';
 
-        if (panel.type === 'dice' && panel.minimized) {
-            header.style.height = '40px';
-            const img = document.createElement('img');
-            img.src = 'assets/d20.svg';
-            img.width = 40;
-            img.height = 40;
-
-            title.textContent = '';
-            title.appendChild(img);
-        } else {
-            title.textContent = panel.title || '(Untitled)';
-        }
-
-        const headerButtons = document.createElement('div');
-        headerButtons.className = 'panel-header-buttons';
-
-        if (panel.type === 'custom' || panel.type === 'external') {
-            const editBtn = document.createElement('button');
-            editBtn.className = 'panel-btn';
-            editBtn.textContent = '✎';
-            editBtn.title = panel.type === 'external' ? 'Edit exteral URL' : 'Edit custom content';
-            editBtn.addEventListener('click', e => {
-                e.stopPropagation();
-                if (panel.type === 'external') {
-                    enterExternalPanelEditMode(panel.id, el);
+            if (panel.minimized) {
+                if (panel.type === 'dice') {
+                    el.classList.add('minimizeddice');
+                    el.style.width = '40px';
+                    el.style.height = '40px';
                 } else {
-                    enterCustomPanelEditMode(panel.id, el);
+                    el.classList.add('minimized');
+                    el.style.width = 'auto';
                 }
-            });
-            headerButtons.appendChild(editBtn);
-        }
-
-        if (panel.type === 'premade' && panel.premadeId) {
-            const def = getPremadeDef(panel.premadeId);
-            if (def && def.source) {
-                const readMoreBtn = document.createElement('button');
-                readMoreBtn.className = 'panel-btn panel-readmore';
-                readMoreBtn.textContent = 'Read more';
-                readMoreBtn.title = 'Open source in new tab';
-                readMoreBtn.addEventListener('click', e => {
-                    e.stopPropagation();
-                    window.open(def.source, '_blank', 'noopener');
-                });
-                headerButtons.appendChild(readMoreBtn);
+            } else {
+                if (panel.type === 'dice') {
+                    el.style.width = '500px';
+                    el.style.height = '200px';
+                } else {
+                    el.style.width = (panel.width ?? 320) + 'px';
+                }
             }
-        }
 
-        if (panel.type === 'layout') {
-            const mode = panel.layoutMode || 'grid';
-            if (mode === 'horizontal' || mode === 'vertical') {
-                if ((panel.subPanels || []).length >= 2) {
-                    const addBtn = document.createElement('button');
-                    addBtn.className = 'panel-btn';
-                    addBtn.textContent = 'Add';
-                    addBtn.title = 'Add new area';
-                    addBtn.addEventListener('click', e => {
+            const header = document.createElement('div');
+            header.className = 'panel-header';
+
+            const title = document.createElement('div');
+            title.className = 'panel-title';
+
+            if (panel.type === 'dice' && panel.minimized) {
+                header.style.height = '40px';
+                const img = document.createElement('img');
+                img.src = 'assets/d20.svg';
+                img.width = 40;
+                img.height = 40;
+
+                title.textContent = '';
+                title.appendChild(img);
+            } else {
+                title.textContent = panel.title || '(Untitled)';
+            }
+
+            const headerButtons = document.createElement('div');
+            headerButtons.className = 'panel-header-buttons';
+
+            if (!isPlayerView) {
+                if (panel.type === 'custom' || panel.type === 'external') {
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'panel-btn';
+                    editBtn.textContent = '✎';
+                    editBtn.title = panel.type === 'external' ? 'Edit exteral URL' : 'Edit custom content';
+                    editBtn.addEventListener('click', e => {
                         e.stopPropagation();
-                        showLayoutChildMenu(e.clientX, e.clientY, {
-                            parentPanelId: panel.id,
-                            slotIndex: (panel.subPanels || []).length
-                        });
+                        if (panel.type === 'external') {
+                            enterExternalPanelEditMode(panel.id, el);
+                        } else {
+                            enterCustomPanelEditMode(panel.id, el);
+                        }
                     });
-                    headerButtons.insertBefore(addBtn, headerButtons.firstChild);
+                    headerButtons.appendChild(editBtn);
                 }
-            } else if (mode === 'grid') {
-                const addRowBtn = document.createElement('button');
-                addRowBtn.className = 'panel-btn';
-                addRowBtn.textContent = '+Row';
-                addRowBtn.title = 'Add row';
-                addRowBtn.addEventListener('click', e => {
-                    e.stopPropagation();
-                    ensureGridDimensions(panel);
-                    panel.gridRows += 1;
-                    context.saveState();
-                    context.renderDesktop();
-                });
-
-                const addColBtn = document.createElement('button');
-                addColBtn.className = 'panel-btn';
-                addColBtn.textContent = '+Col';
-                addColBtn.title = 'Add column';
-                addColBtn.addEventListener('click', e => {
-                    e.stopPropagation();
-                    ensureGridDimensions(panel);
-                    panel.gridCols += 1;
-                    context.saveState();
-                    context.renderDesktop();
-                });
-
-                headerButtons.insertBefore(addColBtn, headerButtons.firstChild);
-                headerButtons.insertBefore(addRowBtn, headerButtons.firstChild);
             }
-        }
 
-        const minimizeBtn = document.createElement('button');
-        minimizeBtn.className = 'panel-btn';
-        if (panel.minimized) {
-            minimizeBtn.textContent = '□';
-            minimizeBtn.title = 'Restore panel';
-        } else {
-            minimizeBtn.textContent = '–';
-            minimizeBtn.title = 'Minimize panel';
-        }
-        minimizeBtn.addEventListener('click', e => {
-            e.stopPropagation();
-            togglePanelMinimized(panel.id);
+            if (panel.type === 'premade' && panel.premadeId) {
+                const def = getPremadeDef(panel.premadeId);
+                if (def && def.source) {
+                    const readMoreBtn = document.createElement('button');
+                    readMoreBtn.className = 'panel-btn panel-readmore';
+                    readMoreBtn.textContent = 'Read more';
+                    readMoreBtn.title = 'Open source in new tab';
+                    readMoreBtn.addEventListener('click', e => {
+                        e.stopPropagation();
+                        window.open(def.source, '_blank', 'noopener');
+                    });
+                    headerButtons.appendChild(readMoreBtn);
+                }
+            }
+
+            if (!isPlayerView) {
+                if (panel.type === 'layout') {
+                    const mode = panel.layoutMode || 'grid';
+                    if (mode === 'horizontal' || mode === 'vertical') {
+                        if ((panel.subPanels || []).length >= 2) {
+                            const addBtn = document.createElement('button');
+                            addBtn.className = 'panel-btn';
+                            addBtn.textContent = 'Add';
+                            addBtn.title = 'Add new area';
+                            addBtn.addEventListener('click', e => {
+                                e.stopPropagation();
+                                showLayoutChildMenu(e.clientX, e.clientY, {
+                                    parentPanelId: panel.id,
+                                    slotIndex: (panel.subPanels || []).length
+                                });
+                            });
+                            headerButtons.insertBefore(addBtn, headerButtons.firstChild);
+                        }
+                    } else if (mode === 'grid') {
+                        const addRowBtn = document.createElement('button');
+                        addRowBtn.className = 'panel-btn';
+                        addRowBtn.textContent = '+Row';
+                        addRowBtn.title = 'Add row';
+                        addRowBtn.addEventListener('click', e => {
+                            e.stopPropagation();
+                            ensureGridDimensions(panel);
+                            panel.gridRows += 1;
+                            context.saveState();
+                            context.renderDesktop();
+                        });
+
+                        const addColBtn = document.createElement('button');
+                        addColBtn.className = 'panel-btn';
+                        addColBtn.textContent = '+Col';
+                        addColBtn.title = 'Add column';
+                        addColBtn.addEventListener('click', e => {
+                            e.stopPropagation();
+                            ensureGridDimensions(panel);
+                            panel.gridCols += 1;
+                            context.saveState();
+                            context.renderDesktop();
+                        });
+
+                        headerButtons.insertBefore(addColBtn, headerButtons.firstChild);
+                        headerButtons.insertBefore(addRowBtn, headerButtons.firstChild);
+                    }
+                }
+
+                const minimizeBtn = document.createElement('button');
+                minimizeBtn.className = 'panel-btn';
+                if (panel.minimized) {
+                    minimizeBtn.textContent = '□';
+                    minimizeBtn.title = 'Restore panel';
+                } else {
+                    minimizeBtn.textContent = '–';
+                    minimizeBtn.title = 'Minimize panel';
+                }
+                minimizeBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    togglePanelMinimized(panel.id);
+                });
+                headerButtons.appendChild(minimizeBtn);
+
+                if (panel.closable !== false) {
+                    const closeBtn = document.createElement('button');
+                    closeBtn.className = 'panel-btn';
+                    closeBtn.textContent = '×';
+                    closeBtn.title = 'Close panel';
+                    closeBtn.addEventListener('click', e => {
+                        e.stopPropagation();
+                        closePanel(panel.id, true);
+                    });
+                    headerButtons.appendChild(closeBtn);
+                }
+            }
+
+            header.appendChild(title);
+            header.appendChild(headerButtons);
+
+            const body = document.createElement('div');
+            body.className = 'panel-body';
+
+            if (panel.type === 'premade') {
+                renderPremadePanel(context, panel, body);
+            } else if (panel.type === 'custom') {
+                renderCustomPanel(panel, body);
+            } else if (panel.type === 'external') {
+                renderExternalPanel(panel, body);
+            } else if (panel.type === 'dice' && !isPlayerView) {
+                renderDicePanel(context, panel, body);
+            } else if (panel.type === 'layout') {
+                renderLayoutPanel(context, panel, body, {
+                    enterCustomChildEdit: (childId, parentId, element) =>
+                        enterCustomLayoutEditMode(parentId, childId, el),
+                    enterExternalChildEdit: (childId, parentId, element) =>
+                        enterExternalLayoutEditMode(parentId, childId, el)
+                });
+            }
+
+            el.appendChild(header);
+            el.appendChild(body);
+
+            if (!isPlayerView) {
+                if (panel.type !== 'dice') {
+                    const resizeHandle = document.createElement('div');
+                    resizeHandle.className = 'panel-resize-handle';
+                    resizeHandle.addEventListener('mousedown', startPanelResize);
+                    el.appendChild(resizeHandle);
+                }
+            }
+
+            desktop.appendChild(el);
+
+            if (!isPlayerView) {
+                header.addEventListener('mousedown', startPanelDrag);
+                header.addEventListener('dblclick', () => {
+                    togglePanelMinimized(panel.id);
+                });
+            }
         });
-        headerButtons.appendChild(minimizeBtn);
-
-        if (panel.closable !== false) {
-            const closeBtn = document.createElement('button');
-            closeBtn.className = 'panel-btn';
-            closeBtn.textContent = '×';
-            closeBtn.title = 'Close panel';
-            closeBtn.addEventListener('click', e => {
-                e.stopPropagation();
-                closePanel(panel.id);
-            });
-            headerButtons.appendChild(closeBtn);
-        }
-
-        header.appendChild(title);
-        header.appendChild(headerButtons);
-
-        const body = document.createElement('div');
-        body.className = 'panel-body';
-
-        if (panel.type === 'premade') {
-            renderPremadePanel(context, panel, body);
-        } else if (panel.type === 'custom') {
-            renderCustomPanel(panel, body);
-        } else if (panel.type === 'external') {
-            renderExternalPanel(panel, body);
-        } else if (panel.type === 'dice') {
-            renderDicePanel(context, panel, body);
-        } else if (panel.type === 'layout') {
-            renderLayoutPanel(context, panel, body, {
-                enterCustomChildEdit: (childId, parentId, element) =>
-                    enterCustomLayoutEditMode(parentId, childId, el),
-                enterExternalChildEdit: (childId, parentId, element) =>
-                    enterExternalLayoutEditMode(parentId, childId, el)
-            });
-        }
-
-        el.appendChild(header);
-        el.appendChild(body);
-
-        if (panel.type !== 'dice') {
-            const resizeHandle = document.createElement('div');
-            resizeHandle.className = 'panel-resize-handle';
-            resizeHandle.addEventListener('mousedown', startPanelResize);
-            el.appendChild(resizeHandle);
-        }
-
-        desktop.appendChild(el);
-
-        header.addEventListener('mousedown', startPanelDrag);
-        header.addEventListener('dblclick', () => {
-            togglePanelMinimized(panel.id);
-        });
-    });
+    }
 }
 
 function startPanelDrag(e) {
@@ -736,6 +759,53 @@ function handlePanelMenuAction(targetInfo, action) {
             ctx.renderDesktop();
             break;
         }
+        case 'panel-send-to-player': {
+            if (kind !== 'panel') return;
+            if (kind === 'dice') return;
+
+            const x = parentPanel.x;
+            const y = parentPanel.y;
+
+            let playerTab = getPlayerTab(ctx);
+
+            if (!playerTab) {
+                const id = ctx.uid('tab');
+                const tab = {
+                    id,
+                    title: 'Player',
+                    panels: []
+                };
+                const state = ctx.getState();
+                state.tabs.push(tab);
+                ctx.saveState();
+                ctx.renderAll();
+
+                playerTab = getPlayerTab(ctx);
+            }
+
+            let premadeId = parentPanel.premadeId || null;
+            let customContent = parentPanel.customContent || null;
+            let externalUrl = parentPanel.externalUrl || null;
+            let layoutMode = parentPanel.layoutMode || null;
+            let subPanels = parentPanel.subPanels || null;
+
+            addPanel(ctx, playerTab, parentPanel.type, {
+                x,
+                y,
+                premadeId,
+                layoutMode,
+                customContent,
+                externalUrl,
+                subPanels,
+                title: parentPanel.title
+            });
+            closePanel(parentPanel.id, false);
+
+            parentPanel.zIndex = ctx.bumpZCounter();
+            ctx.saveState();
+            ctx.renderDesktop();
+            break;
+        }
     }
 }
 
@@ -812,12 +882,13 @@ export function setupDesktop(context) {
 
             hideMenus();
 
+            const tab = getActiveTab(context);
             const pos = ctx.elements.desktop.getBoundingClientRect();
             const x = desktopContextTargetPoint.x - pos.left;
             const y = desktopContextTargetPoint.y - pos.top;
 
             if (premadeId) {
-                addPanel(ctx, 'premade', {
+                addPanel(ctx, tab, 'premade', {
                     premadeId,
                     x,
                     y,
@@ -826,16 +897,16 @@ export function setupDesktop(context) {
             } else if (layout) {
                 const layoutMode = layout;
                 const niceName = layoutMode[0].toUpperCase() + layoutMode.slice(1);
-                addPanel(ctx, 'layout', {
+                addPanel(ctx, tab, 'layout', {
                     x,
                     y,
                     layoutMode,
                     title: `${niceName} Layout`
                 });
             } else if (action === 'add-custom') {
-                addPanel(ctx, 'custom', { x, y, title: 'Custom Panel' });
+                addPanel(ctx, tab, 'custom', { x, y, title: 'Custom Panel' });
             } else if (action === 'add-external') {
-                addPanel(ctx, 'external', { x, y, title: 'External Panel' });
+                addPanel(ctx, tab, 'external', { x, y, title: 'External Panel' });
             } else if (action === 'open-settings') {
                 openSettings(ctx);
             }

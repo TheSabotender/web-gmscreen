@@ -4,11 +4,15 @@ require_once __DIR__ . '/partials/config.php';
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <?php include __DIR__ . '/partials/header.php'; ?>
-  <script src="https://cdn.jsdelivr.net/npm/jquery"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Player View</title>
+<link rel="stylesheet" href="assets/app.css">
+<script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
 </head>
-<body>
-  <script type="importmap">
+<body> 
+
+<script type="importmap">
     {
       "imports": {        
         "three": "./three/Three.js",
@@ -21,15 +25,22 @@ require_once __DIR__ . '/partials/config.php';
       }
     }
   </script>
-  <?php include __DIR__ . '/partials/desktop.php'; ?>
-  <?php include __DIR__ . '/partials/settings-modal.php'; ?>
-
-  <!-- "https://unpkg.com/three@0.160.0/build/three.module.js" -->
   
+<div id="app-root" class="tabbar-bottom">
+  <div id="wallpaper" class="wallpaper">
+    <!-- Wallpaper will be injected here by JS -->
+  </div>
+
+  <div id="desktop" class="desktop" tabindex="0">
+    <!-- Panels will be injected here by JS -->
+  </div>
+</div>
+
   <script>
     // Expose premade panels to JS
     window.PREMADE_PANELS = <?php echo json_encode($panels, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
   </script>
-  <script type="module" src="scripts/main.js"></script>
+  <script type="module" src="scripts/player.js"></script>
+  
 </body>
 </html>

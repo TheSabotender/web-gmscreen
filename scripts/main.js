@@ -88,7 +88,7 @@ function renderAll(context) {
   renderWallpaper(context);
   renderSettings(context);
   renderTabs(context);
-  renderDesktop(context);
+  renderDesktop(context, false);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadState: () => loadState(),
     renderAll: () => renderAll(context),
     renderWallpaper: () => renderWallpaper(context),
-    renderDesktop: () => renderDesktop(context),
+    renderDesktop: () => renderDesktop(context, false),
     renderTabs: () => renderTabs(context),
     renderSettings: () => renderSettings(context),
     messages: Messages
