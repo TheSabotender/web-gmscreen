@@ -258,24 +258,42 @@ export class DiceBox {
 	}
 
 	setScene(dimensions) {
-		this.display.currentWidth = this.container.clientWidth > 0 ? this.container.clientWidth : parseInt(this.container.style.width);
-		this.display.currentHeight = this.container.clientHeight > 0 ? this.container.clientHeight : parseInt(this.container.style.height);
+                const parseDimension = (value) => {
+                        const parsed = Number.parseInt(value, 10);
+                        return Number.isFinite(parsed) ? parsed : null;
+                };
+
+                const measuredWidth = this.container.clientWidth;
+                const measuredHeight = this.container.clientHeight;
+                const styledWidth = parseDimension(this.container.style.width);
+                const styledHeight = parseDimension(this.container.style.height);
+
+                this.display.currentWidth = measuredWidth > 0 ? measuredWidth : (styledWidth || 1);
+                this.display.currentHeight = measuredHeight > 0 ? measuredHeight : (styledHeight || 1);
 
 		if (dimensions) {
-			this.display.containerWidth = dimensions.width;
-			this.display.containerHeight = dimensions.height;
-			this.display.containerMargin = dimensions.margin || null;
+                        const dimensionWidth = parseDimension(dimensions.width);
+                        const dimensionHeight = parseDimension(dimensions.height);
 
-			if (!this.display.currentWidth || !this.display.currentHeight) {
-				this.display.currentWidth = dimensions.width;
-				this.display.currentHeight = dimensions.height;
-				this.display.currentMargin = dimensions.margin || null;
-			}
-		} else {
-			this.display.containerWidth = this.display.currentWidth;
-			this.display.containerHeight = this.display.currentHeight;
-			this.display.containerMargin = this.display.currentMargin;
-		}
+                        this.display.containerWidth = dimensionWidth || this.display.currentWidth;
+                        this.display.containerHeight = dimensionHeight || this.display.currentHeight;
+                        this.display.containerMargin = dimensions.margin || null;
+
+                        if (!this.display.currentWidth || !this.display.currentHeight) {
+                                this.display.currentWidth = this.display.containerWidth;
+                                this.display.currentHeight = this.display.containerHeight;
+                                this.display.currentMargin = dimensions.margin || null;
+                        }
+                } else {
+                        this.display.containerWidth = this.display.currentWidth;
+                        this.display.containerHeight = this.display.currentHeight;
+                        this.display.containerMargin = this.display.currentMargin;
+                }
+
+                this.display.currentWidth = Math.max(1, this.display.currentWidth || 0);
+                this.display.currentHeight = Math.max(1, this.display.currentHeight || 0);
+                this.display.containerWidth = Math.max(1, this.display.containerWidth || 0);
+                this.display.containerHeight = Math.max(1, this.display.containerHeight || 0);
 
 		this.updateInnerDimensions();
 
