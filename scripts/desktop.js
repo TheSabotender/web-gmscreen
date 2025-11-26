@@ -64,6 +64,35 @@ let resizeStart = { x: 0, y: 0, width: 0, height: 0 };
 let desktopContextTargetPoint = { x: 0, y: 0 };
 let panelContextTarget = null;
 
+function copyTextToClipboard(text) {
+    if (navigator?.clipboard?.writeText) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+    }
+    return fallbackCopy(text);
+}
+
+function fallbackCopy(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'absolute';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    const selection = document.getSelection();
+    const originalRange = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+    textarea.select();
+    try {
+        document.execCommand('copy');
+    } catch (err) {
+        console.warn('Copy to clipboard failed:', err);
+    }
+    document.body.removeChild(textarea);
+    if (originalRange && selection) {
+        selection.removeAllRanges();
+        selection.addRange(originalRange);
+    }
+}
+
 function getActiveTab(context = ctx) {
     const state = context.getState();
     return (state.tabs || []).find(t => t.id === state.activeTabId);
@@ -632,6 +661,7 @@ function showPanelMenu(x, y, target) {
     const layoutItems = panelContextMenu.querySelectorAll('.panel-menu-layout');
     const layerItems = panelContextMenu.querySelectorAll('.panel-menu-layer');
     const layoutChildRemoveItems = panelContextMenu.querySelectorAll('.panel-menu-layout-child');
+    const debugItems = panelContextMenu.querySelectorAll('.panel-menu-debug');
 
     const setVisible = (nodes, visible) => {
         nodes.forEach(el => {
@@ -662,6 +692,7 @@ function showPanelMenu(x, y, target) {
     setVisible(externalItems, isTopLevel && type === 'external');
     setVisible(layoutItems, isTopLevel && type === 'layout');
     setVisible(layerItems, isTopLevel);
+    setVisible(debugItems, !!ctx.isDebug && isTopLevel);
 
     let showChildRemove = false;
     if (!isTopLevel && target.kind === 'layoutChild' && child) {
@@ -797,6 +828,17 @@ function handlePanelMenuAction(targetInfo, action, meta = {}) {
             parentPanel.zIndex = minZ - 1;
             ctx.saveState();
             ctx.renderDesktop();
+            break;
+        }
+        case 'panel-copy-size': {
+            if (!ctx.isDebug || kind !== 'panel') return;
+            const panelEl = document.querySelector(`.panel[data-panel-id="${parentPanel.id}"]`);
+            const rect = panelEl?.getBoundingClientRect();
+            const width = Math.round(rect?.width ?? parentPanel.width ?? 0);
+            const height = Math.round(rect?.height ?? parentPanel.height ?? 0);
+            const payload = `"width": ${width},\n"height": ${height}`;
+            copyTextToClipboard(payload);
+            console.log('Copied panel size:', payload);
             break;
         }
         case 'panel-send-to-tab': {
