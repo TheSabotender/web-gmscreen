@@ -220,7 +220,10 @@ export function renderTabs(context) {
   tabList.innerHTML = '';
   getTabs(state).forEach(tab => {
     const el = document.createElement('div');
-    el.className = 'tab' + (tab.id === state.activeTabId ? ' active' : '');
+    const classes = ['tab'];
+    if (tab.title === 'Player') classes.push('tab-player');
+    if (tab.id === state.activeTabId) classes.push('active');
+    el.className = classes.join(' ');
     el.dataset.tabId = tab.id;
     el.draggable = true;
 
