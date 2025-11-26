@@ -42,10 +42,13 @@ function buildPremadeTree(panels) {
 
   panels.forEach(p => {
     const name = p.name || p.id;
-    const segments = [
-      ...(Array.isArray(p.folders) ? p.folders : []),
-      name
-    ]
+    const folderSegments = Array.isArray(p.folders)
+      ? p.folders
+      : typeof p.folder === 'string'
+        ? p.folder.split('/')
+        : [];
+
+    const segments = [...folderSegments, name]
       .map(s => (typeof s === 'string' ? s.trim() : ''))
       .filter(Boolean);
     if (!segments.length) return;
