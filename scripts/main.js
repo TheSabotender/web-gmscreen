@@ -8,6 +8,8 @@ import { renderSettings, setupSettings } from './settings.js';
 import { initPremadeSubmenu } from './panel_premade.js';
 import { createDicePanelState, ensureDicePanels } from './panel_dice.js';
 
+const IS_DEBUG_MODE = new URLSearchParams(window.location.search).has('debug');
+
 const STORAGE_KEY = 'webDesktopStateV1';
 
 const DEFAULT_STATE = {
@@ -129,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     getDefaultState: () => structuredClone(DEFAULT_STATE),
     uid,
+    isDebug: IS_DEBUG_MODE,
     getZCounter: () => zCounter,
     bumpZCounter: () => ++zCounter,
     setZCounter: value => {

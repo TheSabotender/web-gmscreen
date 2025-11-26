@@ -124,6 +124,10 @@
     <li class="context-item panel-menu-layer" data-action="panel-send-back">
       Send to back
     </li>
+
+    <li class="context-item panel-menu-debug" data-action="panel-copy-size">
+      ✏️Copy Size
+    </li>
   </ul>
 </div>
 
