@@ -1,8 +1,8 @@
 // Import using relative paths because import maps are not available inside module workers.
-import { World, Material, NaiveBroadphase, ContactMaterial, Body, Plane, Vec3, Sphere, PointToPointConstraint, Cylinder, ConvexPolyhedron } from '../../../cannon-es/cannon-es.js';
+import { World, Material, NaiveBroadphase, ContactMaterial, Body, Plane, Vec3, Sphere, PointToPointConstraint, Cylinder, ConvexPolyhedron } from 'cannon-es';
 import { DICE_SHAPE } from '../DiceModels.js';
-import { Vector3 } from '../../../three/Three.js';
-import RegisterPromise from '../../../webworker-promise/register.js';
+import { Vector3 } from 'three';
+import RegisterPromise from 'webworker-promise/register.js';
 
 export default class PhysicsWorker {
     constructor() {
@@ -21,6 +21,8 @@ export default class PhysicsWorker {
             .operation('simulateThrow', this.simulateThrow.bind(this))
             .operation('updateBarriers', this.updateBarriers.bind(this))
             .operation('getWorldInfo', this.getWorldInfo.bind(this));
+
+        self.postMessage('physicsworker loaded');
     }
 
     /**
@@ -51,6 +53,8 @@ export default class PhysicsWorker {
         this.addBarriers(data.height, data.width, data.margin);
         this.addJointBody();
         this.reset();
+
+        self.postMessage('physicsworker initiated');
     }
 
     /**

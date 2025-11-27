@@ -27,17 +27,19 @@ import {
 export class DiceFactory {
 
 	constructor(dice3D) {
-		this.dice3D = dice3D;
+		this.dice3d = dice3D;
 
 		this.geometries = {};
 
-                if (!DiceFactory.physicsWorker) {
-                        const worker = new Worker(new URL('./web-workers/PhysicsWorker.js', import.meta.url), {
-                                type: 'module'
-                        });
-                        DiceFactory.physicsWorker = new WebworkerPromise(worker);
-                }
-                this.physicsWorker = DiceFactory.physicsWorker;
+        if (!DiceFactory.physicsWorker) {
+          const worker = new Worker(new URL('./web-workers/PhysicsWorker.js', import.meta.url), {
+            type: 'module'
+		  });
+			worker.onerror = e => console.error("Error from worker", e.message);
+		  worker.onmessage = e => console.log(e.data);
+          DiceFactory.physicsWorker = new WebworkerPromise(worker);
+        }
+		this.physicsWorker = DiceFactory.physicsWorker;
 		//this.physicsWorker = new WebworkerPromise(new PhysicsWorker());
 
 		this.baseScale = 50;
@@ -796,7 +798,7 @@ export class DiceFactory {
 				texture.colorSpace = SRGBColorSpace;
 			texture.flipY = false;
 			mat.map = texture;
-			mat.map.anisotropy = dice3d.box.anisotropy;
+			mat.map.anisotropy = this.dice3d.box.anisotropy;
 
 			if(this.realisticLighting){
 				let bumpMap = new CanvasTexture(canvasBump);
@@ -836,7 +838,7 @@ export class DiceFactory {
 		mat.onBeforeCompile = ShaderUtils.applyDiceSoNiceShader;
 
 		// deprecated shader hook
-		Hooks.callAll("diceSoNiceOnMaterialReady", mat, baseMaterialCacheString);
+		//Hooks.callAll("diceSoNiceOnMaterialReady", mat, baseMaterialCacheString);
 
 		this.baseMaterialCache[baseMaterialCacheString] = mat;
 		return mat;
