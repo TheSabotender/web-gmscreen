@@ -5,9 +5,9 @@
  */
 export class ShaderUtils {
 
-	static applyDiceSoNiceShader(shader) {
+        static applyDiceSoNiceShader(shader) {
 
-        if(this.emissive !== undefined && game.dice3d.DiceFactory.realisticLighting) {
+        if(this.emissive !== undefined && globalThis.dice3d.DiceFactory.realisticLighting) {
             ShaderUtils.selectiveBloomShaderFragment(shader);
         }
 
@@ -20,20 +20,20 @@ export class ShaderUtils {
             ShaderUtils.iridescenceShaderFragment(shader);
         }
 
-		// deprecated shader hook
+                // deprecated shader hook
         Hooks.callAll("diceSoNiceShaderOnBeforeCompile", shader, this);
 
-		// new shader hook system
-		if(this.userData.system && game.dice3d.DiceFactory.systems.has(this.userData.system)) {
-			const system = game.dice3d.DiceFactory.systems.get(this.userData.system);
-			system.beforeShaderCompile(shader, this);
-		}
+                // new shader hook system
+                if(this.userData.system && globalThis.dice3d.DiceFactory.systems.has(this.userData.system)) {
+                        const system = globalThis.dice3d.DiceFactory.systems.get(this.userData.system);
+                        system.beforeShaderCompile(shader, this);
+                }
     }
 
-	static selectiveBloomShaderFragment(shader) {
-		shader.uniforms.globalBloom = game.dice3d.uniforms.globalBloom;
-		shader.fragmentShader = `
-			uniform float globalBloom;
+        static selectiveBloomShaderFragment(shader) {
+                shader.uniforms.globalBloom = globalThis.dice3d.uniforms.globalBloom;
+                shader.fragmentShader = `
+                        uniform float globalBloom;
 			${shader.fragmentShader}
 		`.replace(
 			`#include <dithering_fragment>`,
@@ -60,12 +60,12 @@ export class ShaderUtils {
 						material.iridescence *= texture2D( iridescenceMap, vUv ).b;
 					#endif
 				#endif`);
-	}
-	// This is the old iridescent shader, which is now deprecated.
-	static iridescentShaderFragment(shader) {
-		shader.uniforms.iridescenceLookUp = game.dice3d.uniforms.iridescenceLookUp;
-		shader.uniforms.iridescenceNoise = game.dice3d.uniforms.iridescenceNoise;
-		shader.uniforms.boost = game.dice3d.uniforms.boost;
+        }
+        // This is the old iridescent shader, which is now deprecated.
+        static iridescentShaderFragment(shader) {
+                shader.uniforms.iridescenceLookUp = globalThis.dice3d.uniforms.iridescenceLookUp;
+                shader.uniforms.iridescenceNoise = globalThis.dice3d.uniforms.iridescenceNoise;
+                shader.uniforms.boost = globalThis.dice3d.uniforms.boost;
 
 		shader.vertexShader = `
 			varying vec3 viWorldPosition;
