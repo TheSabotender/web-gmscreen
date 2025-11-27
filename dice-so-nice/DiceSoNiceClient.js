@@ -33,9 +33,10 @@ export default class DiceSoNiceClient {
     return this;
   }
 
-  async #initialiseDiceSoNice() {    
+  async #initialiseDiceSoNice() {
     this._dice = new Dice3D();
     await this._dice.init();
+    globalThis.dice3d = this._dice;
   }
 
   async #ensureReady() {
@@ -84,10 +85,11 @@ export default class DiceSoNiceClient {
     * Release the underlying DiceSoNice instance so it can be garbage collected.
     */
   destroy() {
-      if (this._dice) {
-          this._dice.clear();
+    if (this._dice) {
+      this._dice.clear();
     }
-      this._dice = null;
+    this._dice = null;
+    globalThis.dice3d = null;
     this._initPromise = null;
   }
 }
