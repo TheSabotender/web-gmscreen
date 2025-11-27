@@ -474,7 +474,7 @@ export class DiceTerm extends RollTerm {
     // Match modifiers
     modifiers = Array.from((modifiers || "").matchAll(DiceTerm.MODIFIER_REGEXP)).map(m => m[0]);
 
-    // Construct a term of the appropriate denomination
-    return new cls({ number, denomination, modifiers, options: {flavor}});
+      // Construct a term of the appropriate denomination
+      return new cls({ number, denomination, faces: denomination, modifiers, options: { flavor } });
   }
 }

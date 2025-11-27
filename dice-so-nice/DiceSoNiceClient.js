@@ -62,6 +62,8 @@ export default class DiceSoNiceClient {
     //return dice.renderRolls(notation);
 
     let roll = new Roll(notation);
+    roll.evaluate({ async: false });
+
     let data = new DiceNotation(roll, Dice3D.ALL_CONFIG(), {id: "me"});
     return dice.show(data, false, null, false);
 

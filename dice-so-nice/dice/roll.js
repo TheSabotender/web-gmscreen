@@ -332,7 +332,7 @@ export class Roll {
   _evaluateTotal() {
     const expression = this.terms.map(t => t.total).join(" ");
     const total = this.constructor.safeEval(expression);
-    if ( !Number.isNumeric(total) ) {
+    if (!foundry.utils.isNumeric(total) ) {
       throw new Error(game.i18n.format("DICE.ErrorNonNumeric", {formula: this.formula}));
     }
     return total;
@@ -414,7 +414,7 @@ export class Roll {
     } catch {
       result = undefined;
     }
-    if ( !Number.isNumeric(result) ) {
+    if (!foundry.utils.isNumeric(result) ) {
       throw new Error(`Roll.safeEval produced a non-numeric result from expression "${expression}"`);
     }
     return result;
@@ -954,7 +954,7 @@ export class Roll {
     tooltip.style.left = `${Math.min(pa.x, window.innerWidth - (pt.width + 3))}px`;
     tooltip.style.top = `${Math.min(pa.y + pa.height + 3, window.innerHeight - (pt.height + 3))}px`;
     const zi = getComputedStyle(a).zIndex;
-    tooltip.style.zIndex = Number.isNumeric(zi) ? zi + 1 : 100;
+    tooltip.style.zIndex = foundry.utils.isNumeric(zi) ? zi + 1 : 100;
   }
 
   /* -------------------------------------------- */

@@ -32,5 +32,8 @@ const CONFIG = globalThis.CONFIG = {
         termTypes: { DiceTerm, MathTerm, NumericTerm, OperatorTerm, ParentheticalTerm, PoolTerm, StringTerm },
         terms: { c: Coin, d: Die, f: FateDie },
         randomUniform: MersenneTwister.random
+    },
+    debug: {
+        dice: true
     }
 }

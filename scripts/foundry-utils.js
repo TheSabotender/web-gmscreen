@@ -126,6 +126,10 @@ export function duplicate(original, options = {}) {
   return clone(original);
 }
 
+export function deepClone(original, options = {}) {
+    return duplicate(original, options);
+}
+
 export function mergeObject(original, other = {}, options = {}, _d = 0) {
   if (!isObjectLike(original)) {
     throw new TypeError('mergeObject | The target must be an object or array.');
@@ -224,11 +228,14 @@ const globalScope = typeof globalThis !== 'undefined' ? globalThis : window;
 const foundryNamespace = globalScope.foundry || (globalScope.foundry = {});
 const utilsNamespace = foundryNamespace.utils || {};
 
-utilsNamespace.mergeObject = mergeObject;
 utilsNamespace.duplicate = duplicate;
+utilsNamespace.deepClone = deepClone;
+utilsNamespace.mergeObject = mergeObject;
 utilsNamespace.isSubclass = isSubclass;
 utilsNamespace.isEmpty = isEmpty;
 utilsNamespace.isNumeric = isNumeric;
+utilsNamespace.isFinite = isFinite;
+utilsNamespace.isInteger = isInteger;
 
 foundryNamespace.utils = utilsNamespace;
 
