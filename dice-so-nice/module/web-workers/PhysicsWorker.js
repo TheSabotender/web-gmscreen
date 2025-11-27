@@ -1,6 +1,5 @@
 // Import using relative paths because import maps are not available inside module workers.
 import { World, Material, NaiveBroadphase, ContactMaterial, Body, Plane, Vec3, Sphere, PointToPointConstraint, Cylinder, ConvexPolyhedron } from 'cannon-es';
-import { DICE_SHAPE } from '../DiceModels.js';
 import { Vector3 } from 'three';
 import RegisterPromise from 'webworker-promise/register.js';
 
@@ -326,8 +325,12 @@ export default class PhysicsWorker {
         }
     }
 
-    createShape({type, radius}){
-        const data = DICE_SHAPE[type];
+    createShape({data, type, radius}){
+        //const data = DICE_SHAPE[type];
+
+        if (data === undefined))
+            throw new Error("Unknown shape type: " + type);
+
         switch(data.type){
             case "ConvexPolyhedron":
                 this.shapeList.set(type, this.loadGeom(data.vertices, data.faces, radius, data.skipLastFaceIndex));
@@ -365,7 +368,7 @@ export default class PhysicsWorker {
         return this.loadShape(vectors, faces, radius, skipLastFaceIndex);
     }
 
-    getDiceValue(id){
+    getDiceValue(id, shape){
         const dice = this.diceList.get(id);
 
         if(!dice)
@@ -377,7 +380,7 @@ export default class PhysicsWorker {
         const faceCannon = new Vector3();
         let closest_face, closest_angle = Math.PI * 2;
         for (let i = 0, l = dice.shapes[0].faceNormals.length; i < l; ++i) {
-            if(DICE_SHAPE[dice.diceShape].faceValues[i] == 0)
+            if(shape.faceValues[i] == 0)
                 continue;
             faceCannon.copy(dice.shapes[0].faceNormals[i]);
             
@@ -387,7 +390,7 @@ export default class PhysicsWorker {
                 closest_face = i;
             }
         }
-        const dieValue = DICE_SHAPE[dice.diceShape].faceValues[closest_face];
+        const dieValue = shape.faceValues[closest_face];
         dice.result = dieValue;
         this.diceList.set(id, dice);
 

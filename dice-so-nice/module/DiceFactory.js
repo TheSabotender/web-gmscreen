@@ -1,7 +1,8 @@
 import {DicePreset} from './DicePreset.js';
 import {BASE_PRESETS_LIST, EXTRA_PRESETS_LIST} from './DiceDefaultPresets.js';
 import {DiceColors, DICE_SCALE, COLORSETS} from './DiceColors.js';
-import {DICE_MODELS} from './DiceModels.js';
+import { DICE_MODELS } from './DiceModels.js';
+import { DICE_SHAPE } from './DiceModels.js';
 import {DiceSystem} from './DiceSystem.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
@@ -35,8 +36,9 @@ export class DiceFactory {
           const worker = new Worker(new URL('./web-workers/PhysicsWorker.js', import.meta.url), {
             type: 'module'
 		  });
-			worker.onerror = e => console.error("Error from worker", e.message);
-		  worker.onmessage = e => console.log(e.data);
+		  worker.addEventListener('error', e => console.error("Error from worker", e.message));
+		  worker.addEventListener('message', e => console.log(e.data));
+
           DiceFactory.physicsWorker = new WebworkerPromise(worker);
         }
 		this.physicsWorker = DiceFactory.physicsWorker;
@@ -568,7 +570,12 @@ export class DiceFactory {
 
 		// If we're on the board, we also create the shape in the physics worker
 		if(scopedTextureCache.type == "board"){
-			await this.physicsWorker.exec("createShape", { type:diceobj.shape, radius:diceobj.scale * scopedScale });
+			try {
+				let data = DICE_SHAPE[diceobj.shape];
+				await this.physicsWorker.exec("createShape", { data: data, type: diceobj.shape, radius: diceobj.scale * scopedScale });
+			} catch (e) {
+				console.error("createShape failed:", err?.message || err, err?.stack);
+			}
 		}
 
 		if(diceobj.model){
@@ -659,6 +666,7 @@ export class DiceFactory {
 		dicemesh.shape = diceobj.shape;
 		const that=dicemesh;
 		dicemesh.getValue = async () => {
+			let shape = DICE_SHAPE[that.shape];
 			const result = await this.physicsWorker.exec('getDiceValue', that.id);
 			return result;
 		};
