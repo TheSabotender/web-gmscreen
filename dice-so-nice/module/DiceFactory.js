@@ -31,10 +31,13 @@ export class DiceFactory {
 
 		this.geometries = {};
 
-		const worker = new Worker(new URL('./web-workers/PhysicsWorker.js', import.meta.url), {
-			type: 'module'
-		});
-		this.physicsWorker = new WebworkerPromise(worker);
+                if (!DiceFactory.physicsWorker) {
+                        const worker = new Worker(new URL('./web-workers/PhysicsWorker.js', import.meta.url), {
+                                type: 'module'
+                        });
+                        DiceFactory.physicsWorker = new WebworkerPromise(worker);
+                }
+                this.physicsWorker = DiceFactory.physicsWorker;
 		//this.physicsWorker = new WebworkerPromise(new PhysicsWorker());
 
 		this.baseScale = 50;
