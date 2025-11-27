@@ -7,6 +7,7 @@ import {DiceSystem} from './DiceSystem.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { ShaderUtils } from './ShaderUtils.js';
+import PhysicsWorker from './web-workers/PhysicsWorker.js';
 import WebworkerPromise from 'webworker-promise';
 
 import {
@@ -41,7 +42,8 @@ export class DiceFactory {
                     filename: e.filename,
                     lineno: e.lineno,
                     colno: e.colno,
-                    error: e.error
+					error: e.error,
+                    raw: e
                   }));
                   worker.addEventListener('messageerror', e => console.error("Message error from worker", e.data));
                   worker.addEventListener('message', e => console.log(e.data));
@@ -674,7 +676,7 @@ export class DiceFactory {
 		const that=dicemesh;
 		dicemesh.getValue = async () => {
 			let shape = DICE_SHAPE[that.shape];
-			const result = await this.physicsWorker.exec('getDiceValue', that.id);
+			const result = await this.physicsWorker.exec('getDiceValue', { id: that.id, shape: shape });
 			return result;
 		};
 

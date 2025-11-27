@@ -98,7 +98,7 @@ export default function RegisterPromise(fn) {
   return server;
 }
 
-class TransferableResponse {
+export class TransferableResponse {
   constructor(payload, transferable) {
     this.payload = payload;
     this.transferable = transferable;

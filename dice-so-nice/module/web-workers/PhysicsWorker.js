@@ -2,6 +2,7 @@
 import { World, Material, NaiveBroadphase, ContactMaterial, Body, Plane, Vec3, Sphere, PointToPointConstraint, Cylinder, ConvexPolyhedron } from '../../../cannon-es/cannon-es.js';
 import { Vector3 } from '../../../three/Three.js';
 import RegisterPromise from '../../../webworker-promise/register.js';
+import { TransferableResponse } from '../../../webworker-promise/register.js';
 
 // Surface any unexpected errors to the main thread to aid debugging.
 self.addEventListener('error', (event) => {
@@ -356,7 +357,7 @@ export default class PhysicsWorker {
     createShape({data, type, radius}){
         //const data = DICE_SHAPE[type];
 
-        if (data === undefined))
+        if (data === undefined)
             throw new Error("Unknown shape type: " + type);
 
         switch(data.type){
@@ -396,7 +397,7 @@ export default class PhysicsWorker {
         return this.loadShape(vectors, faces, radius, skipLastFaceIndex);
     }
 
-    getDiceValue(id, shape){
+    getDiceValue({id, shape}){
         const dice = this.diceList.get(id);
 
         if(!dice)
@@ -466,7 +467,7 @@ export default class PhysicsWorker {
 
         this.cleanAfterThrow();
 
-        return new RegisterPromise.TransferableResponse({
+        return new TransferableResponse({
             ids: ids, 
             quaternionsBuffers: quaternionsBuffers, 
             positionsBuffers: positionsBuffers, 
@@ -555,7 +556,7 @@ export default class PhysicsWorker {
                 }
             }
         }
-        return new RegisterPromise.TransferableResponse({ids: ids, quaternionsBuffers: quaternions.buffer, positionsBuffers: positions.buffer, worldAsleep: worldAsleep}, [quaternions.buffer, positions.buffer]);
+        return new TransferableResponse({ids: ids, quaternionsBuffers: quaternions.buffer, positionsBuffers: positions.buffer, worldAsleep: worldAsleep}, [quaternions.buffer, positions.buffer]);
     }
 
     //debug function to get the state of the CANNON world
