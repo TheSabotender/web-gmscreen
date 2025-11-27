@@ -1,7 +1,8 @@
-import { World, Material, NaiveBroadphase, ContactMaterial, Body, Plane, Vec3, Sphere, PointToPointConstraint, Cylinder, ConvexPolyhedron } from 'cannon-es';
+// Import using relative paths because import maps are not available inside module workers.
+import { World, Material, NaiveBroadphase, ContactMaterial, Body, Plane, Vec3, Sphere, PointToPointConstraint, Cylinder, ConvexPolyhedron } from '../../../cannon-es/cannon-es.js';
 import { DICE_SHAPE } from '../DiceModels.js';
-import { Vector3 } from 'three';
-import RegisterPromise from 'webworker-promise/register.js';
+import { Vector3 } from '../../../three/Three.js';
+import RegisterPromise from '../../../webworker-promise/register.js';
 
 export default class PhysicsWorker {
     constructor() {
