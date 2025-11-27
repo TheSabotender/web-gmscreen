@@ -14,14 +14,14 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { Dice3D } from './Dice3D.js';
 
 import {
-	ACESFilmicToneMapping,
-	Clock,
-	Color,
-	CubeTextureLoader,
-	DirectionalLight,
-	Euler,
-	FloatType,
-	Group,
+        ACESFilmicToneMapping,
+        Clock,
+        Color,
+        CubeTextureLoader,
+        DirectionalLight,
+        Euler,
+        FloatType,
+        Group,
 	HalfFloatType,
 	HemisphereLight,
 	Layers,
@@ -42,15 +42,57 @@ import {
 	TextureLoader,
 	Vector2,
 	Vector3,
-	WebGLRenderer,
-	WebGLRenderTarget
+        WebGLRenderer,
+        WebGLRenderTarget
 } from 'three';
+
+
+class LocalTicker {
+        constructor() {
+                this.listeners = new Set();
+                this.running = false;
+                this._tick = this._tick.bind(this);
+        }
+
+        add(fn, context) {
+                this.listeners.add({ fn, context });
+                if (!this.running) {
+                        this.running = true;
+                        this._request = requestAnimationFrame(this._tick);
+                }
+        }
+
+        remove(fn) {
+                for (const listener of Array.from(this.listeners)) {
+                        if (listener.fn === fn) this.listeners.delete(listener);
+                }
+
+                if (!this.listeners.size && this.running) {
+                        cancelAnimationFrame(this._request);
+                        this.running = false;
+                }
+        }
+
+        _tick(time) {
+                if (!this.running) return;
+
+                for (const { fn, context } of Array.from(this.listeners)) {
+                        fn.call(context, time);
+                }
+
+                if (this.listeners.size) {
+                        this._request = requestAnimationFrame(this._tick);
+                } else {
+                        this.running = false;
+                }
+        }
+}
 
 
 export class DiceBox {
 
-	constructor(dice3d, element_container, dice_factory, config) {
-		this.dice3d = dice3d;
+        constructor(dice3d, element_container, dice_factory, config) {
+                this.dice3d = dice3d;
 		this.container = element_container;
 		this.dicefactory = dice_factory;
 		this.physicsWorker = this.dicefactory.physicsWorker;
@@ -129,11 +171,13 @@ export class DiceBox {
 			bloom: 1
 		};
 
-		this.bloomMaterials = {};
-		this.darkMaterial = new MeshBasicMaterial({ color: 'black' });
+                this.bloomMaterials = {};
+                this.darkMaterial = new MeshBasicMaterial({ color: 'black' });
 
-		this.debugMode = false;
-	}
+                this.debugMode = false;
+
+                this.ticker = new LocalTicker();
+        }
 
 	initialize() {
 		return new Promise(async resolve => {
@@ -1125,34 +1169,16 @@ export class DiceBox {
 		if (this.dicefactory.shadows) {
 			this.light.shadow.map.dispose();
 		}
-		if (this.config.boxType == "board")
-			this.removeTicker(this.animateThrow);
-		else
-			this.removeTicker(this.animateSelector);
-	}
+                if (this.config.boxType == "board")
+                        this.removeTicker(this.animateThrow);
+                else
+                        this.removeTicker(this.animateSelector);
+        }
 
-	//Allow to remove an handler from a PIXI ticker even when the context changed.
-	removeTicker(fn) {
-		let ticker = canvas.app.ticker;
-		let listener = ticker._head.next;
-
-		while (listener) {
-			// We found a match, lets remove it
-			// no break to delete all possible matches
-			// incase a listener was added 2+ times
-			if (listener.fn === fn) {
-				listener = listener.destroy();
-			}
-			else {
-				listener = listener.next;
-			}
-		}
-
-		if (!ticker._head.next) {
-			ticker._cancelIfNeeded();
-		}
-		return ticker;
-	}
+        removeTicker(fn) {
+                this.ticker?.remove(fn);
+                return this.ticker;
+        }
 
 	async rollDice(throws, callback) {
 		//old code??
@@ -1195,11 +1221,11 @@ export class DiceBox {
 		this.running = (new Date()).getTime();
 		this.last_time = 0;
 
-		this.callback = callback;
-		this.throws = throws;
-		this.removeTicker(this.animateThrow);
-		canvas.app.ticker.add(this.animateThrow, this);
-	}
+                this.callback = callback;
+                this.throws = throws;
+                this.removeTicker(this.animateThrow);
+                this.ticker.add(this.animateThrow, this);
+        }
 
 	//Check if there's an animated dice to reduce render loop complexecity if there's none
 	async checkForAnimatedDice() {
@@ -1283,11 +1309,11 @@ export class DiceBox {
 			this.container.style.opacity = 0;
 			this.last_time = window.performance.now();
 			this.start_time = this.last_time;
-			this.framerate = 1000 / 60;
-			this.removeTicker(this.animateSelector);
-			canvas.app.ticker.add(this.animateSelector, this);
-		}
-		else this.renderScene();
+                        this.framerate = 1000 / 60;
+                        this.removeTicker(this.animateSelector);
+                        this.ticker.add(this.animateSelector, this);
+                }
+                else this.renderScene();
 		setTimeout(() => {
 			this.scene.traverse(object => {
 				if (object.type === 'Mesh') object.material.needsUpdate = true;
