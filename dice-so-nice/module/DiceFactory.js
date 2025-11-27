@@ -35,9 +35,16 @@ export class DiceFactory {
         if (!DiceFactory.physicsWorker) {
           const worker = new Worker(new URL('./web-workers/PhysicsWorker.js', import.meta.url), {
             type: 'module'
-		  });
-		  worker.addEventListener('error', e => console.error("Error from worker", e.message));
-		  worker.addEventListener('message', e => console.log(e.data));
+                  });
+                  worker.addEventListener('error', e => console.error("Error from worker", {
+                    message: e.message,
+                    filename: e.filename,
+                    lineno: e.lineno,
+                    colno: e.colno,
+                    error: e.error
+                  }));
+                  worker.addEventListener('messageerror', e => console.error("Message error from worker", e.data));
+                  worker.addEventListener('message', e => console.log(e.data));
 
           DiceFactory.physicsWorker = new WebworkerPromise(worker);
         }

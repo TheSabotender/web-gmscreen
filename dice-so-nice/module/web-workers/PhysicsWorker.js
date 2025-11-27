@@ -1,7 +1,35 @@
 // Import using relative paths because import maps are not available inside module workers.
-import { World, Material, NaiveBroadphase, ContactMaterial, Body, Plane, Vec3, Sphere, PointToPointConstraint, Cylinder, ConvexPolyhedron } from 'cannon-es';
-import { Vector3 } from 'three';
-import RegisterPromise from 'webworker-promise/register.js';
+import { World, Material, NaiveBroadphase, ContactMaterial, Body, Plane, Vec3, Sphere, PointToPointConstraint, Cylinder, ConvexPolyhedron } from '../../../cannon-es/cannon-es.js';
+import { Vector3 } from '../../../three/Three.js';
+import RegisterPromise from '../../../webworker-promise/register.js';
+
+// Surface any unexpected errors to the main thread to aid debugging.
+self.addEventListener('error', (event) => {
+    // Avoid throwing if certain properties are unavailable in older browsers.
+    const serializedError = {
+        message: event.message,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        stack: event.error?.stack ?? event.error
+    };
+
+    // Log inside the worker for environments that surface worker console output.
+    console.error('PhysicsWorker encountered an error', serializedError);
+
+    // Forward details to the main thread for visibility.
+    self.postMessage({ type: 'worker-error', error: serializedError });
+});
+
+self.addEventListener('unhandledrejection', (event) => {
+    const serializedRejection = {
+        message: event.reason?.message ?? String(event.reason),
+        stack: event.reason?.stack ?? event.reason
+    };
+
+    console.error('PhysicsWorker unhandled rejection', serializedRejection);
+    self.postMessage({ type: 'worker-rejection', error: serializedRejection });
+});
 
 export default class PhysicsWorker {
     constructor() {
