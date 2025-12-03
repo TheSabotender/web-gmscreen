@@ -33,18 +33,28 @@ export function playConfetti(density, duration) {
   runEmitter(duration, () => {
     particleManager.emitParticles(density, () => {
       const velocity = {
-        x: (Math.random() - 0.5) * 250,
-        y: -500 - Math.random() * 200
+        x: (Math.random() - 0.5) * 280,
+        y: -750 - Math.random() * 250
       };
+      const startY = height * (0.65 + Math.random() * 0.35);
       return new Particle({
-        position: { x: Math.random() * width, y: height + 10 },
+        position: { x: Math.random() * width, y: startY },
         velocity,
         size: 6 + Math.random() * 4,
         color: randomChoice(CONFETTI_COLORS),
-        life: 4500,
-        friction: 0.99,
+        life: 5200,
+        friction: 0.992,
         turbulence: 50,
-        turbulenceFrequency: 9
+        turbulenceFrequency: 9,
+        rotation: Math.random() * Math.PI * 2,
+        spin: (Math.random() - 0.5) * 6,
+        onUpdate: particle => {
+          const flip = Math.sin(particle.age * 0.008 + particle.seed);
+          particle.scaleX = 0.35 + Math.abs(flip) * 0.85;
+          particle.scaleY = 1.05 - Math.abs(flip) * 0.2;
+          const flash = Math.abs(flip) > 0.9 ? 1.25 : 1;
+          particle.brightness = flash;
+        }
       });
     });
   });
@@ -64,19 +74,22 @@ export function playStreamers(density, duration) {
     particleManager.emitParticles(density, () => {
       const x = Math.random() * width;
       const velocity = {
-        x: (Math.random() - 0.5) * 200,
-        y: -600 - Math.random() * 150
+        x: (Math.random() - 0.5) * 240,
+        y: -950 - Math.random() * 220
       };
+      const startY = height * (0.7 + Math.random() * 0.3);
       return new Particle({
-        position: { x, y: height + 10 },
+        position: { x, y: startY },
         velocity,
-        size: 4,
+        size: 0,
         color: randomChoice(STREAMER_COLORS),
-        life: 4000,
-        friction: 0.993,
+        life: 4500,
+        friction: 0.994,
         turbulence: 60,
         turbulenceFrequency: 10,
-        trailLength: 14
+        trailLength: 16,
+        trailWidth: 4,
+        opacity: 0.9
       });
     });
   });
@@ -100,7 +113,7 @@ export function playFireworks(density, duration) {
     const targetX = Math.random() * width;
     const targetY = height * (0.2 + Math.random() * 0.4);
     const launchSpeed = 900 + Math.random() * 400;
-    const startY = height + 20;
+    const startY = height * (0.85 + Math.random() * 0.15);
     const travelTimeMs = Math.abs((targetY - startY) / -launchSpeed) * 1000;
 
     particleManager.emitParticles(1, () => new Particle({

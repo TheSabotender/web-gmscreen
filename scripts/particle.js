@@ -1,5 +1,19 @@
+function adjustColorBrightness(hexColor, factor) {
+  let hex = hexColor.replace('#', '');
+  if (hex.length === 3) {
+    hex = hex.split('').map(ch => ch + ch).join('');
+  }
+  const num = parseInt(hex, 16);
+  const r = Math.min(255, Math.max(0, Math.round(((num >> 16) & 0xff) * factor)));
+  const g = Math.min(255, Math.max(0, Math.round(((num >> 8) & 0xff) * factor)));
+  const b = Math.min(255, Math.max(0, Math.round((num & 0xff) * factor)));
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+}
+
 export class Particle {
-  constructor({ position, velocity, life = 2000, size = 4, color = '#ffffff', opacity = 1, gravity = 0, wind = 0, turbulence = 0, turbulenceFrequency = 6, friction = 0.98, trailLength = 0 }) {
+  constructor({ position, velocity, life = 2000, size = 4, color = '#ffffff', opacity = 1, gravity = 0, wind = 0, turbulence = 0,
+    turbulenceFrequency = 6, friction = 0.98, trailLength = 0, trailWidth = null, rotation = 0, spin = 0, scaleX = 1, scaleY = 1,
+    brightness = 1, onUpdate = null }) {
     this.position = { ...position };
     this.velocity = { ...velocity };
     this.size = size;
@@ -13,8 +27,15 @@ export class Particle {
     this.turbulenceFrequency = turbulenceFrequency;
     this.friction = friction;
     this.trailLength = trailLength;
+    this.trailWidth = trailWidth;
     this.history = trailLength > 0 ? [] : null;
     this.seed = Math.random() * Math.PI * 2;
+    this.rotation = rotation;
+    this.spin = spin;
+    this.scaleX = scaleX;
+    this.scaleY = scaleY;
+    this.brightness = brightness;
+    this.onUpdate = onUpdate;
   }
 
   update(deltaMs, environment) {
@@ -46,11 +67,19 @@ export class Particle {
     this.position.x += this.velocity.x * deltaSec;
     this.position.y += this.velocity.y * deltaSec;
 
+    if (this.spin) {
+      this.rotation += this.spin * deltaSec;
+    }
+
     if (this.history) {
       this.history.push({ x: this.position.x, y: this.position.y });
       if (this.history.length > this.trailLength) {
         this.history.shift();
       }
+    }
+
+    if (typeof this.onUpdate === 'function') {
+      this.onUpdate(this, { deltaMs, environment });
     }
 
     return this.age < this.life;
@@ -60,11 +89,12 @@ export class Particle {
     ctx.save();
     const alpha = Math.max(0, 1 - this.age / this.life) * this.opacity;
     ctx.globalAlpha = alpha;
-    ctx.fillStyle = this.color;
+    ctx.fillStyle = this.brightness !== 1 ? adjustColorBrightness(this.color, this.brightness) : this.color;
 
     if (this.history && this.history.length > 1) {
       ctx.strokeStyle = this.color;
-      ctx.lineWidth = Math.max(1, this.size / 2);
+      const trailWidth = this.trailWidth ?? Math.max(1, this.size / 2);
+      ctx.lineWidth = trailWidth;
       ctx.beginPath();
       const first = this.history[0];
       ctx.moveTo(first.x, first.y);
@@ -74,9 +104,14 @@ export class Particle {
       ctx.stroke();
     }
 
-    ctx.beginPath();
-    ctx.rect(this.position.x, this.position.y, this.size, this.size);
-    ctx.fill();
+    if (this.size > 0) {
+      ctx.translate(this.position.x + this.size / 2, this.position.y + this.size / 2);
+      ctx.rotate(this.rotation);
+      ctx.scale(this.scaleX, this.scaleY);
+      ctx.beginPath();
+      ctx.rect(-this.size / 2, -this.size / 2, this.size, this.size);
+      ctx.fill();
+    }
     ctx.restore();
   }
 }
