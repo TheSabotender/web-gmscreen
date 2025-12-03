@@ -7,6 +7,7 @@ import { renderTabs, setupTabbar } from './tabbar.js';
 import { renderSettings, setupSettings } from './settings.js';
 import { initPremadeSubmenu } from './panel_premade.js';
 import { createDicePanelState, ensureDicePanels } from './panel_dice.js';
+import { playConfetti, playStreamers, playFireworks } from './celebrations.js';
 
 const IS_DEBUG_MODE = new URLSearchParams(window.location.search).has('debug');
 
@@ -157,4 +158,14 @@ document.addEventListener('DOMContentLoaded', () => {
   setupSettings(context);
 
   renderAll(context);
+
+  window.addEventListener('keydown', e => {
+    if (e.code === 'Numpad1') {
+      playConfetti(18, 2200);
+    } else if (e.code === 'Numpad2') {
+      playStreamers(10, 2200);
+    } else if (e.code === 'Numpad3') {
+      playFireworks(8, 2600);
+    }
+  });
 });
